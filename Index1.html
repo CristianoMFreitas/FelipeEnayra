@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felipe & Enayra - Nosso Casamento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --brown: #6D4C41;
+            --white: #FFFFFF;
+            --gold: #D4AF37;
+            --beige: #F5F5DC;
+            --green: #2E7D32;
+            --text-dark: #3E2723;
+            --light-brown: #A1887F;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--beige);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+        }
+
+        .cursive-text {
+            font-family: 'Great Vibes', cursive;
+            color: var(--brown);
+            font-weight: 400;
+        }
+
+        .screen-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--beige) 0%, #faf8f3 100%);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, rgba(109, 76, 65, 0.6) 0%, rgba(46, 125, 50, 0.5) 100%), url('https://files.manuscdn.com/user_upload_by_module/session_file/310419663028499832/oBTeAmVtWKeOtrXR.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--white);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 6rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .hero-date {
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+        }
+
+        .buttons-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            z-index: 10;
+        }
+
+        .action-btn {
+            padding: 15px 35px;
+            border-radius: 30px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--gold);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border-color: var(--white);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            color: var(--brown);
+            transform: translateY(-3px);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            animation: bounce 2s infinite;
+            color: var(--white);
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        .section-title {
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: 3.5rem;
+            color: var(--brown);
+        }
+
+        .divider {
+            width: 80px;
+            height: 3px;
+            background: var(--gold);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        .story-text {
+            font-size: 1.1rem;
+            max-width: 800px;
+            line-height: 1.8;
+            margin-bottom: 50px;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .story-text p {
+            margin-bottom: 15px;
+        }
+
+        .countdown-container {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .countdown-box {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(109, 76, 65, 0.1);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .countdown-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--brown);
+            font-family: 'Playfair Display', serif;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--gold);
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .gallery-img-wrapper {
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            height: 35vh;
+            border: 5px solid var(--white);
+        }
+
+        .gallery-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .gallery-img-wrapper:hover img {
+            transform: scale(1.08);
+        }
+
+        .details-card {
+            background: var(--white);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            max-width: 700px;
+            width: 100%;
+            border-top: 6px solid var(--green);
+        }
+
+        .details-card h3 {
+            font-size: 2.5rem;
+            color: var(--green);
+            margin-bottom: 15px;
+        }
+
+        .details-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .details-btn {
+            background: transparent;
+            color: var(--brown);
+            border: 2px solid var(--brown);
+        }
+
+        .details-btn:hover {
+            background: var(--brown);
+            color: var(--white);
+        }
+
+        .guestbook-container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--brown);
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            background: #faf8f3;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-control:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        textarea.input-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--green);
+            color: var(--white);
+            border: none;
+            padding: 15px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            background: var(--brown);
+            transform: translateY(-3px);
+        }
+
+        .messages-list {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .message-item {
+            background: #faf8f3;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--gold);
+        }
+
+        .message-author {
+            font-weight: 600;
+            color: var(--brown);
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .message-content {
+            color: var(--text-dark);
+            font-style: italic;
+        }
+
+        #audio-toggle {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+            background: var(--white);
+            color: var(--brown);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #audio-toggle:hover {
+            transform: scale(1.1);
+            color: var(--gold);
+        }
+
+        .heart-beat {
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+            color: var(--gold);
+        }
+
+        .animate-element {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        footer {
+            background-color: var(--brown);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-15px); }
+            60% { transform: translateY(-7px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 { font-size: 4rem; }
+            .hero-date { font-size: 1.1rem; }
+            .section-title h2 { font-size: 2.8rem; }
+            .countdown-box { width: 90px; height: 90px; padding: 15px; }
+            .countdown-number { font-size: 1.6rem; }
+            .gallery-grid { grid-template-columns: 1fr; gap: 15px; }
+            .gallery-img-wrapper { height: 25vh; }
+            .details-card, .guestbook-container { padding: 30px 20px; }
+            .action-btn { padding: 12px 20px; font-size: 0.8rem; width: 100%; max-width: 250px; }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="audio-toggle">🎵</button>
+    <audio id="background-audio"></audio>
+
+    <section class="screen-section hero-section">
+        <div class="animate-element">
+            <p class="hero-subtitle">Preparem o coração</p>
+            <h1>Felipe <span class="heart-beat">🤍</span> Enayra</h1>
+            <p class="hero-date">20 de Novembro de 2026 • 16:00hs</p>
+            
+            <div class="buttons-group">
+                <a href="#confirmacao" class="action-btn btn-primary">✅ Confirmar Presença</a>
+                <a href="#presentes" class="action-btn btn-secondary">🎁 Lista de Presentes</a>
+                <a href="#recados" class="action-btn btn-secondary">📝 Deixe um Recado</a>
+            </div>
+        </div>
+        <div class="scroll-indicator animate-element">↓</div>
+    </section>
+
+    <section class="screen-section">
+        <div class="section-title animate-element">
+            <span class="cursive-text" style="font-size: 3rem;">Sejam bem-vindos!</span>
+            <h2>Nossa História</h2>
+            <div class="divider"></div>
+        </div>
+        
+        <div class="story-text animate-element">
+            <p>Estamos muito felizes por compartilhar este momento com vocês. Cada etapa da nossa caminhada até aqui tem sido vivida com muito amor, e agora chegou a hora de nos prepararmos para um dos dias mais especiais da nossa vida.</p>
+            <p>Criamos este espaço para reunir as principais informações sobre a nossa cerimônia e dividir um pouquinho da nossa alegria com as pessoas que fazem parte da nossa história.</p>
+            <p>Cada detalhe deste dia foi pensado com muito carinho, simplicidade e amor. Esperamos que este site ajude vocês a acompanhar essa caminhada e que, em breve, possamos celebrar juntos esse momento tão especial.</p>
+            <p>Obrigado por fazerem parte da nossa história e por estarem ao nosso lado.</p>
+            <p style="margin-top: 20px; font-size: 1.3rem;">Com carinho,<br><strong>Felipe e Enayra. 🤍</strong></p>
+        </div>
+
+        <div class="countdown-container animate-element" style="margin-top: 30px;">
+            <div class="countdown-box">
+                <span id="timer-days" class="countdown-number">00</span>
+                <span class="countdown-label">Dias</span>
+            </div>
+            <div class="countdown-box">
+                <span id="timer-hours" class="countdown-number">00</span>
+                <span class="countdown-label">Horas</span>
+            </div>
+            <div class="countdown-box">
+                <span id="timer-minutes" class="countdown-number">00</span>
+                <span class="countdown-label">Min</span>
+            </div>
+            <div class="countdown-box">
+                <span id="timer-seconds" class="countdown-number">00</span>
+                <span class="countdown-label">Seg</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="screen-section" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(46, 125, 50, 0.05) 100%);">
+        <div class="section-title animate-element">
+            <h2>Momentos Especiais</h2>
+            <div class="divider"></div>
+        </div>
+        
+        <div class="gallery-grid animate-element">
+            <div class="gallery-img-wrapper"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663028499832/IaOnozsqjwkvirmD.jpg" alt="Casal 1"></div>
+            <div class="gallery-img-wrapper"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663028499832/YSjFoYrJcxQnCTJA.jpg" alt="Casal 2"></div>
+            <div class="gallery-img-wrapper"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663028499832/vmywnBQcEkAVWScG.jpg" alt="Casal 3"></div>
+            <div class="gallery-img-wrapper"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310419663028499832/VrwsLchosxNscReV.jpg" alt="Casal 4"></div>
+        </div>
+    </section>
+
+    <section class="screen-section">
+        <div class="details-card animate-element">
+            <span class="cursive-text" style="font-size: 2.5rem;">Celebre conosco</span>
+            <h3>Cerimônia</h3>
+            <p style="font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--brown); margin: 15px 0;">20 de Novembro de 2026 às 16:00hs</p>
+            
+            <p style="margin-bottom: 15px;">Nossa cerimônia será realizada no Salão do Reino das Testemunhas de Jeová, um lugar muito especial para nós.</p>
+            <p style="margin-bottom: 15px;">Será um momento simples, mas cheio de significado, em que faremos nossos votos diante de Jeová, nosso Deus, e de nossos familiares e amigos.</p>
+            <p>Ficaremos muito felizes em compartilhar esse dia com vocês. 🤍</p>
+            
+            <div class="details-buttons">
+                <a href="https://www.google.com/maps" target="_blank" class="action-btn details-btn">📍 Como Chegar</a>
+            </div>
+        </div>
+
+        <div class="details-card animate-element" style="margin-top: 40px; border-top: 6px solid var(--gold); padding: 40px;">
+            <h3 style="font-size: 2rem; color: var(--gold); margin-bottom: 15px;">Mensagem aos convidados</h3>
+            <p style="font-weight: 600; font-size: 1.1rem; color: var(--brown); margin-bottom: 10px;">Sua presença é um presente para nós.</p>
+            <p>Obrigado por reservar um tempo para celebrar esse momento tão importante da nossa vida. Esperamos que este seja um dia de muita alegria e boas lembranças.</p>
+        </div>
+    </section>
+
+    <section id="recados" class="screen-section" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(46, 125, 50, 0.05) 100%);">
+        <div class="section-title animate-element">
+            <span class="cursive-text" style="font-size: 3rem;">Com carinho</span>
+            <h2>Mural de Recados</h2>
+            <div class="divider"></div>
+            <p style="max-width: 600px; margin: 20px auto; color: var(--text-dark); font-size: 1.1rem;">
+                Sua mensagem será uma lembrança muito especial para nós.<br>
+                Se desejar, deixe algumas palavras, um conselho ou uma mensagem de carinho. Será uma alegria ler cada recado.
+            </p>
+        </div>
+
+        <div class="guestbook-container animate-element">
+            <form id="guestbook-form" action="#" method="POST">
+                <div class="input-group">
+                    <label for="guest-name">Seu Nome</label>
+                    <input type="text" id="guest-name" name="name" class="input-control" placeholder="Como devemos te chamar?" required>
+                </div>
+                <div class="input-group">
+                    <label for="guest-message">Mensagem aos Noivos</label>
+                    <textarea id="guest-message" name="message" class="input-control" placeholder="Deixe seu carinho aqui..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Enviar Mensagem 🤍</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="animate-element">
+            <span class="cursive-text" style="font-size: 3.5rem; color: var(--gold); display: block; margin-bottom: 20px;">Felipe & Enayra</span>
+            <p style="max-width: 600px; margin: 0 auto; font-size: 1.1rem; font-weight: 300; line-height: 1.6;">
+                O amor nos trouxe até aqui. Agora, esperamos por você.<br>Obrigado por fazer parte do dia mais especial das nossas vidas. 🤍
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        document.querySelectorAll('.animate-element').forEach((el) => {
+            gsap.fromTo(el, 
+                { opacity: 0, y: 40, autoAlpha: 0 },
+                { 
+                    opacity: 1, 
+                    y: 0, 
+                    autoAlpha: 1,
+                    duration: 1.5, 
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: el,
+                        start: "top 85%",
+                        toggleActions: "play none none none" 
+                    }
+                }
+            );
+        });
+
+        const targetDate = new Date("Nov 20, 2026 16:00:00").getTime();
+        
+        const updateTimer = setInterval(() => {
+            const now = new Date().getTime();
+            const difference = targetDate - now;
+
+            if (difference < 0) {
+                clearInterval(updateTimer);
+                document.querySelector(".countdown-container").innerHTML = "<h2 style='color: var(--gold);'>É HOJE! 🤍</h2>";
+                return;
+            }
+
+            document.getElementById("timer-days").innerText = Math.floor(difference / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+            document.getElementById("timer-hours").innerText = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+            document.getElementById("timer-minutes").innerText = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+            document.getElementById("timer-seconds").innerText = Math.floor((difference % (1000 * 60)) / 1000).toString().padStart(2, '0');
+        }, 1000);
+
+        const playlist = [
+            'musicas/How Long Will I Love You.mp3',
+            'musicas/Let s Stay Together.mp3',
+            'musicas/Belong Together.mp3'
+        ];
+
+        let currentTrackIndex = Math.floor(Math.random() * playlist.length);
+        const audioElement = document.getElementById('background-audio');
+        let isAudioPlaying = false;
+        
+        audioElement.src = playlist[currentTrackIndex];
+        audioElement.load(); 
+
+        audioElement.addEventListener('ended', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            audioElement.src = playlist[currentTrackIndex];
+            audioElement.load();
+            audioElement.play();
+        });
+
+        const toggleAudioBtn = document.getElementById('audio-toggle');
+
+        const startAudio = () => {
+            if (isAudioPlaying) return;
+            
+            const playPromise = audioElement.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isAudioPlaying = true;
+                    toggleAudioBtn.innerText = "⏸️";
+                    
+                    ['click', 'touchstart', 'scroll'].forEach(evt => 
+                        document.removeEventListener(evt, startAudio)
+                    );
+                }).catch(() => {
+                    isAudioPlaying = false;
+                    toggleAudioBtn.innerText = "🎵";
+                });
+            }
+        };
+
+        toggleAudioBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            if (isAudioPlaying) {
+                audioElement.pause();
+                toggleAudioBtn.innerText = "🎵";
+                isAudioPlaying = false;
+            } else {
+                startAudio();
+            }
+        });
+
+        window.addEventListener('load', startAudio);
+        document.addEventListener('click', startAudio);
+        document.addEventListener('touchstart', startAudio, { passive: true });
+        document.addEventListener('scroll', startAudio, { passive: true });
+
+        document.getElementById('guestbook-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Ready for backend integration!');
+        });
+    </script>
+</body>
+</html>

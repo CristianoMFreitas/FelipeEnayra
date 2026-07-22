@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felipe & Enayra - Lista de Presentes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --brown: #6D4C41;
+            --white: #FFFFFF;
+            --gold: #D4AF37;
+            --beige: #F5F5DC;
+            --green: #2E7D32;
+            --text-dark: #3E2723;
+            --light-brown: #A1887F;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--beige);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+        }
+
+        .cursive-text {
+            font-family: 'Great Vibes', cursive;
+            color: var(--brown);
+            font-weight: 400;
+        }
+
+        /* Menu Superior */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: transparent;
+            z-index: 9999;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            transition: all 0.4s ease;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: color 0.3s ease;
+            position: relative;
+            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 30px;
+            height: 22px;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10000;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 100%;
+            height: 2.5px;
+            background-color: var(--text-dark);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.8));
+        }
+
+        .menu-toggle.active span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; }
+        .menu-toggle.active span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+        .screen-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 7rem 2rem 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--beige) 0%, #faf8f3 100%);
+        }
+
+        .section-title {
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: 3.5rem;
+            color: var(--brown);
+        }
+
+        .divider {
+            width: 80px;
+            height: 3px;
+            background: var(--gold);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+
+        /* Lista de Presentes */
+        .gifts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .gift-card {
+            background: var(--white);
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .gift-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .gift-media {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            height: 90px;
+            width: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #faf8f3;
+            border-radius: 50%;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            overflow: hidden;
+        }
+
+        .gift-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--brown);
+            margin-bottom: 10px;
+        }
+
+        .gift-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .gift-btn {
+            background: var(--brown);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .gift-btn:hover {
+            background: var(--gold);
+            color: var(--text-dark);
+        }
+
+        .shop-btn {
+            background: transparent;
+            color: var(--green);
+            border: 1.5px solid var(--green);
+        }
+
+        .shop-btn:hover {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .gift-card.chosen {
+            background: #f4f1ea;
+            border: 1px dashed var(--light-brown);
+            opacity: 0.85;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--brown);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--brown);
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            background: #faf8f3;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-control:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--green);
+            color: var(--white);
+            border: none;
+            padding: 15px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            background: var(--brown);
+            transform: translateY(-3px);
+        }
+
+        /* Botão de Áudio */
+        #audio-toggle {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+            background: var(--white);
+            color: var(--brown);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #audio-toggle:hover {
+            transform: scale(1.1);
+            color: var(--gold);
+        }
+
+        .animate-element {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        footer {
+            background-color: var(--brown);
+            color: var(--white);
+            padding: 3rem 2rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 1.2rem 1.5rem; }
+            .menu-toggle { display: flex; }
+            .nav-links {
+                position: fixed;
+                top: 0; right: -100%;
+                width: 75%; height: 100vh;
+                background-color: rgba(62, 39, 35, 0.95);
+                backdrop-filter: blur(12px);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 2rem;
+                transition: right 0.4s ease-in-out;
+            }
+            .nav-links.active { right: 0; }
+            .nav-links a { font-size: 1.1rem; color: var(--white); text-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menu Superior -->
+    <nav class="navbar">
+        <button class="menu-toggle" id="mobile-menu" aria-label="Abrir Menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html" class="nav-link">Início</a></li>
+            <li><a href="index.html#historia" class="nav-link">Nossa História</a></li>
+            <li><a href="index.html#momentos" class="nav-link">Momentos</a></li>
+            <li><a href="presentes.html" class="nav-link" style="color: var(--gold);">Presentes</a></li>
+            <li><a href="index.html#cerimonia" class="nav-link">Cerimônia</a></li>
+            <li><a href="index.html#rsvp" class="nav-link">Confirmar Presença</a></li>
+            <li><a href="index.html#recados" class="nav-link">Recados</a></li>
+            <li><a href="admin.html" class="nav-link" style="color: var(--gold);">Admin 🔐</a></li>
+        </ul>
+    </nav>
+
+    <!-- Botão de Música e Player de Áudio -->
+    <button id="audio-toggle">🎵</button>
+    <audio id="background-audio"></audio>
+
+    <section class="screen-section">
+        <div class="section-title animate-element">
+            <span class="cursive-text" style="font-size: 3rem;">Com todo carinho</span>
+            <h2>Lista de Presentes</h2>
+            <div class="divider"></div>
+            <p style="max-width: 600px; margin: 15px auto; font-size: 1.05rem;">
+                Ficamos honrados com o seu carinho. Escolha um item abaixo. Assim que você confirmar, o item será reservado em tempo real.
+            </p>
+        </div>
+
+        <div class="gifts-grid animate-element" id="gifts-container">
+            <p style="grid-column: 1 / -1; color: var(--light-brown);">Carregando presentes...</p>
+        </div>
+    </section>
+
+    <!-- Modal de Reserva -->
+    <div class="modal" id="gift-modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close">&times;</span>
+            <h3 id="modal-gift-title" style="color: var(--brown); margin-bottom: 15px;">Escolher Presente</h3>
+            <p style="font-size: 0.95rem; margin-bottom: 20px;">Informe seu nome para confirmar a escolha:</p>
+            <form id="gift-form">
+                <input type="hidden" id="modal-gift-id">
+                <div class="input-group">
+                    <label for="gift-guest-name">Seu Nome Completo</label>
+                    <input type="text" id="gift-guest-name" class="input-control" placeholder="Digite seu nome..." required>
+                </div>
+                <button type="submit" class="submit-btn" style="background: var(--brown);">Confirmar Escolha 🤍</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="animate-element">
+            <span class="cursive-text" style="font-size: 3.5rem; color: var(--gold); display: block; margin-bottom: 20px;">Felipe & Enayra</span>
+            <p style="max-width: 600px; margin: 0 auto; font-size: 1.1rem; font-weight: 300; line-height: 1.6;">
+                O amor nos trouxe até aqui. 🤍
+            </p>
+        </div>
+    </footer>
+
+    <!-- SDK do Firebase (Versão Modular v12) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
+            authDomain: "casamento-felipe-enayra.firebaseapp.com",
+            projectId: "casamento-felipe-enayra",
+            storageBucket: "casamento-felipe-enayra.firebasestorage.app",
+            messagingSenderId: "24443483842",
+            appId: "1:24443483842:web:bc875b5dd017792458ed5b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navLinks = document.getElementById('nav-links');
+        const navItems = document.querySelectorAll('.nav-link');
+
+        mobileMenu.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        const giftsContainer = document.getElementById('gifts-container');
+        const modal = document.getElementById('gift-modal');
+        const modalClose = document.getElementById('modal-close');
+        const modalGiftTitle = document.getElementById('modal-gift-title');
+        const modalGiftId = document.getElementById('modal-gift-id');
+        const giftForm = document.getElementById('gift-form');
+
+        let currentDocId = null;
+
+        onSnapshot(collection(db, "presentes"), (snapshot) => {
+            giftsContainer.innerHTML = '';
+            
+            if (snapshot.empty) {
+                giftsContainer.innerHTML = '<p style="grid-column: 1 / -1;">Nenhum presente cadastrado no momento.</p>';
+                return;
+            }
+
+            snapshot.forEach((docSnapshot) => {
+                const gift = docSnapshot.data();
+                const docId = docSnapshot.id;
+
+                const card = document.createElement('div');
+                card.className = `gift-card ${gift.chosenBy ? 'chosen' : ''}`;
+
+                let iconDisplay = `<div class="gift-media"><span style="font-size: 2.2rem;">${gift.icon || '🎁'}</span></div>`;
+
+                let shopButtonHTML = '';
+                if (gift.link && gift.link.trim() !== '') {
+                    shopButtonHTML = `<a href="${gift.link}" target="_blank" class="gift-btn shop-btn">Comprar na Loja 🔗</a>`;
+                }
+
+                let actionButtonHTML = `<button class="gift-btn" onclick="openGiftModal('${docId}', '${gift.title}')">Quero Presentear</button>`;
+                if (gift.chosenBy) {
+                    actionButtonHTML = `<span style="font-size: 0.85rem; color: var(--green); margin-top: 10px; font-weight: 600;">✔️ Escolhido por ${gift.chosenBy}</span>`;
+                }
+
+                card.innerHTML = `
+                    ${iconDisplay}
+                    <h3 class="gift-title">${gift.title}</h3>
+                    <div class="gift-actions">
+                        ${shopButtonHTML}
+                        ${actionButtonHTML}
+                    </div>
+                `;
+                giftsContainer.appendChild(card);
+            });
+        });
+
+        window.openGiftModal = function(id, title) {
+            currentDocId = id;
+            modalGiftId.value = id;
+            modalGiftTitle.innerText = `Presentear: ${title}`;
+            modal.style.display = 'flex';
+        };
+
+        modalClose.addEventListener('click', () => { modal.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+        giftForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('gift-guest-name').value.trim();
+
+            if (name && currentDocId) {
+                try {
+                    const giftRef = doc(db, "presentes", currentDocId);
+                    await updateDoc(giftRef, {
+                        chosenBy: name,
+                        disponivel: false
+                    });
+
+                    modal.style.display = 'none';
+                    giftForm.reset();
+                    alert(`Obrigado, ${name}! Seu presente foi reservado com sucesso.`);
+                } catch (error) {
+                    console.error("Erro ao atualizar o presente: ", error);
+                    alert("Ocorreu um erro ao salvar. Tente novamente.");
+                }
+            }
+        });
+
+        // Player de Áudio Persistente (Continua de onde parou entre páginas)
+        const playlist = [
+            'musicas/How Long Will I Love You.mp3',
+            'musicas/Let s Stay Together.mp3',
+            'musicas/Belong Together.mp3'
+        ];
+
+        const audioElement = document.getElementById('background-audio');
+        const toggleAudioBtn = document.getElementById('audio-toggle');
+
+        let savedTrackIndex = localStorage.getItem('audio_track_index');
+        let currentTrackIndex = savedTrackIndex !== null ? parseInt(savedTrackIndex, 10) : Math.floor(Math.random() * playlist.length);
+        let savedTime = localStorage.getItem('audio_time');
+        let wasPlaying = localStorage.getItem('audio_is_playing') === 'true';
+
+        audioElement.src = playlist[currentTrackIndex];
+        audioElement.load();
+
+        if (savedTime && !isNaN(parseFloat(savedTime))) {
+            audioElement.currentTime = parseFloat(savedTime);
+        }
+
+        // Salva o tempo continuamente
+        audioElement.addEventListener('timeupdate', () => {
+            localStorage.setItem('audio_time', audioElement.currentTime);
+            localStorage.setItem('audio_track_index', currentTrackIndex);
+        });
+
+        audioElement.addEventListener('ended', () => {
+            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+            audioElement.src = playlist[currentTrackIndex];
+            localStorage.setItem('audio_track_index', currentTrackIndex);
+            localStorage.setItem('audio_time', 0);
+            audioElement.load();
+            audioElement.play();
+        });
+
+        const startAudio = () => {
+            const playPromise = audioElement.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    toggleAudioBtn.innerText = "⏸️";
+                    localStorage.setItem('audio_is_playing', 'true');
+                    ['click', 'touchstart', 'scroll'].forEach(evt => 
+                        document.removeEventListener(evt, startAudio)
+                    );
+                }).catch(() => {
+                    toggleAudioBtn.innerText = "🎵";
+                });
+            }
+        };
+
+        if (wasPlaying) {
+            window.addEventListener('load', startAudio);
+            document.addEventListener('click', startAudio);
+            document.addEventListener('touchstart', startAudio, { passive: true });
+            document.addEventListener('scroll', startAudio, { passive: true });
+        }
+
+        toggleAudioBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!audioElement.paused) {
+                audioElement.pause();
+                toggleAudioBtn.innerText = "🎵";
+                localStorage.setItem('audio_is_playing', 'false');
+            } else {
+                startAudio();
+            }
+        });
+
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.fromTo(".animate-element", 
+            { opacity: 0, y: 40, autoAlpha: 0 },
+            { opacity: 1, y: 0, autoAlpha: 1, duration: 1.5, ease: "power2.out", stagger: 0.2 }
+        );
+    </script>
+</body>
+</html>

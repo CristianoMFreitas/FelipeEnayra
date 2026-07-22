@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Felipe & Enayra - Painel Administrativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brown: #6D4C41;
+            --white: #FFFFFF;
+            --gold: #D4AF37;
+            --beige: #F5F5DC;
+            --green: #2E7D32;
+            --text-dark: #3E2723;
+            --light-brown: #A1887F;
+            --red: #C62828;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--beige);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+        }
+
+        .cursive-text {
+            font-family: 'Great Vibes', cursive;
+            color: var(--brown);
+        }
+
+        /* Tela de Login */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--white);
+            padding: 35px 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-top: 5px solid var(--gold);
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--brown);
+            font-size: 0.9rem;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            background: #faf8f3;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-control:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: var(--white);
+        }
+
+        .btn {
+            width: 100%;
+            background: var(--brown);
+            color: var(--white);
+            border: none;
+            padding: 14px 20px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            min-height: 48px;
+        }
+
+        .btn:hover, .btn:active {
+            background: var(--gold);
+            color: var(--text-dark);
+        }
+
+        /* Painel Administrativo */
+        #admin-panel {
+            display: none;
+            padding: 3rem 2rem 3rem 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 20px;
+            gap: 20px;
+        }
+
+        /* Botões do Cabeçalho - Desktop */
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-actions .btn-header {
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            min-height: 42px;
+        }
+
+        .btn-header-home {
+            background: var(--white);
+            color: var(--brown);
+            border: 1.5px solid var(--brown);
+        }
+
+        .btn-header-home:hover {
+            background: var(--brown);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(109, 76, 65, 0.2);
+        }
+
+        .btn-header-logout {
+            background: var(--brown);
+            color: var(--white);
+            border: 1.5px solid var(--brown);
+        }
+
+        .btn-header-logout:hover {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--text-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .admin-section {
+            background: var(--white);
+            padding: 30px 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.04);
+            margin-bottom: 30px;
+        }
+
+        .admin-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .admin-section h3 {
+            color: var(--brown);
+            font-size: 1.6rem;
+        }
+
+        /* Grid de Formulário de Cadastro */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        /* Tabelas e Layout Responsivo */
+        .table-responsive {
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #faf8f3;
+            color: var(--brown);
+            font-weight: 600;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-available {
+            background: #e8f5e9;
+            color: var(--green);
+        }
+
+        .badge-chosen {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .btn-danger {
+            background: var(--red);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            width: auto;
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px;
+            background: #f0f0f0;
+            color: var(--brown);
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid #ccc;
+        }
+
+        /* Cards para Lista de Recados */
+        .messages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .message-card {
+            background: #faf8f3;
+            border: 1px solid #eae5d9;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #e0dcd0;
+            padding-bottom: 10px;
+        }
+
+        .message-author {
+            font-weight: 600;
+            color: var(--brown);
+            font-size: 1.05rem;
+        }
+
+        .message-date {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .message-body {
+            font-style: italic;
+            line-height: 1.5;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .message-actions {
+            text-align: right;
+        }
+
+        /* Otimização Específica para Telas Menores (Mobile) */
+        @media (max-width: 768px) {
+            #admin-panel {
+                padding: 1.2rem 0.8rem 3rem 0.8rem;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .header-actions {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .header-actions .btn-header {
+                width: 100%;
+                justify-content: center;
+                font-size: 0.85rem;
+                padding: 12px;
+                min-height: 48px;
+            }
+
+            .admin-section {
+                padding: 20px 15px;
+                border-radius: 16px;
+            }
+
+            .admin-section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .admin-section h3 {
+                font-size: 1.3rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .responsive-card-table thead {
+                display: none;
+            }
+
+            .responsive-card-table tbody tr {
+                display: block;
+                background: #faf8f3;
+                border: 1px solid #eae5d9;
+                border-radius: 12px;
+                padding: 15px;
+                margin-bottom: 12px;
+            }
+
+            .responsive-card-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+                border-bottom: 1px dashed #e0dcd0;
+                font-size: 0.9rem;
+            }
+
+            .responsive-card-table td:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+                margin-top: 5px;
+            }
+
+            .responsive-card-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--brown);
+                font-size: 0.85rem;
+                margin-right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tela de Login -->
+    <div id="login-screen">
+        <div class="login-card">
+            <span class="cursive-text" style="font-size: 2.5rem;">Painel Restrito</span>
+            <h2 style="color: var(--brown); margin-bottom: 25px; font-size: 1.3rem;">Felipe & Enayra</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">Usuário</label>
+                    <input type="text" id="username" class="input-control" required placeholder="Digite o usuário" autocomplete="username">
+                </div>
+                <div class="input-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" class="input-control" required placeholder="Digite a senha" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+                <p id="login-error" style="color: var(--red); font-size: 0.85rem; margin-top: 15px; display: none;">Credenciais inválidas!</p>
+            </form>
+            <a href="index.html" style="display: inline-block; margin-top: 20px; color: var(--brown); text-decoration: none; font-size: 0.85rem; font-weight: 600;">← Voltar ao Site</a>
+        </div>
+    </div>
+
+    <!-- Painel Administrativo -->
+    <div id="admin-panel">
+        <div class="admin-header">
+            <div>
+                <span class="cursive-text" style="font-size: 2.2rem;">Gerenciamento</span>
+                <h2 style="font-size: 1.8rem;">Painel dos Noivos</h2>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="btn-header btn-header-home">🏠 Início</a>
+                <button class="btn-header btn-header-logout" id="logout-btn">🚪 Sair</button>
+            </div>
+        </div>
+
+        <!-- Seção: Adicionar Item à Lista de Presentes -->
+        <div class="admin-section">
+            <h3>Adicionar Item na Lista</h3>
+            <form id="add-gift-form" class="form-grid">
+                <div class="input-group" style="margin:0;">
+                    <label for="gift-title">Nome do Presente *</label>
+                    <input type="text" id="gift-title" class="input-control" required placeholder="Ex: Panela Elétrica">
+                </div>
+                
+                <div class="input-group" style="margin:0;">
+                    <label for="gift-icon">Ícone (Emoji)</label>
+                    <input type="text" id="gift-icon" class="input-control" placeholder="Ex: 🍳 (Opcional, padrão: 🎁)">
+                </div>
+
+                <div class="input-group" style="margin:0;">
+                    <label for="gift-link">Link da Loja (Opcional)</label>
+                    <input type="url" id="gift-link" class="input-control" placeholder="https://www.loja.com/...">
+                </div>
+
+                <button type="submit" id="save-gift-btn" class="btn" style="min-height: 48px;">Salvar Item</button>
+            </form>
+        </div>
+
+        <!-- Seção: Monitorar Lista de Presentes -->
+        <div class="admin-section">
+            <h3>Lista de Presentes</h3>
+            <div class="table-responsive">
+                <table class="responsive-card-table">
+                    <thead>
+                        <tr>
+                            <th>Ícone</th>
+                            <th>Presente</th>
+                            <th>Link da Loja</th>
+                            <th>Status</th>
+                            <th>Escolhido por</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-gifts-table">
+                        <!-- Carregado via Firebase -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Seção: Verificar Confirmações de Presença (RSVP) com Filtro por Cidade -->
+        <div class="admin-section">
+            <div class="admin-section-header">
+                <h3>Confirmações de Presença (RSVP)</h3>
+                <div style="min-width: 220px;">
+                    <input type="text" id="filter-city" class="input-control" placeholder="🔍 Filtrar por cidade..." style="padding: 10px 14px; font-size: 0.9rem;">
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="responsive-card-table">
+                    <thead>
+                        <tr>
+                            <th>Nome do Convidado</th>
+                            <th>Telefone</th>
+                            <th>Cidade</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-rsvp-table">
+                        <!-- Carregado via Firebase -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Nova Seção: Visualizar Recados dos Noivos -->
+        <div class="admin-section">
+            <h3>Recados para os Noivos 💌</h3>
+            <div id="admin-messages-container" class="messages-grid">
+                <!-- Carregado via Firebase -->
+            </div>
+        </div>
+    </div>
+
+    <!-- SDK do Firebase (Versão Modular v12) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
+            authDomain: "casamento-felipe-enayra.firebaseapp.com",
+            projectId: "casamento-felipe-enayra",
+            storageBucket: "casamento-felipe-enayra.firebasestorage.app",
+            messagingSenderId: "24443483842",
+            appId: "1:24443483842:web:bc875b5dd017792458ed5b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const ADMIN_USER = "admin";
+        const ADMIN_PASS = "casamento2026";
+
+        const loginScreen = document.getElementById('login-screen');
+        const adminPanel = document.getElementById('admin-panel');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        const addGiftForm = document.getElementById('add-gift-form');
+        const saveGiftBtn = document.getElementById('save-gift-btn');
+        const adminGiftsTable = document.getElementById('admin-gifts-table');
+        const adminRsvpTable = document.getElementById('admin-rsvp-table');
+        const filterCityInput = document.getElementById('filter-city');
+        const adminMessagesContainer = document.getElementById('admin-messages-container');
+
+        let rsvpDataCache = [];
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+                loginScreen.style.display = 'none';
+                adminPanel.style.display = 'block';
+                sessionStorage.setItem('isLoggedIn', 'true');
+            } else {
+                loginError.style.display = 'block';
+            }
+        });
+
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            loginScreen.style.display = 'none';
+            adminPanel.style.display = 'block';
+        }
+
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('isLoggedIn');
+            location.reload();
+        });
+
+        addGiftForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('gift-title').value.trim();
+            let icon = document.getElementById('gift-icon').value.trim();
+            const link = document.getElementById('gift-link').value.trim();
+
+            if (!icon) {
+                icon = "🎁";
+            }
+
+            if (title) {
+                try {
+                    saveGiftBtn.innerText = "Salvando...";
+                    saveGiftBtn.disabled = true;
+
+                    await addDoc(collection(db, "presentes"), {
+                        title: title,
+                        icon: icon,
+                        link: link || "",
+                        chosenBy: null,
+                        disponivel: true
+                    });
+
+                    addGiftForm.reset();
+                    alert("Presente adicionado com sucesso!");
+                } catch (error) {
+                    console.error("Erro ao adicionar presente: ", error);
+                    alert("Erro ao cadastrar o presente. Tente novamente.");
+                } finally {
+                    saveGiftBtn.innerText = "Salvar Item";
+                    saveGiftBtn.disabled = false;
+                }
+            }
+        });
+
+        window.deleteGift = async function(id) {
+            if (confirm("Tem certeza que deseja excluir este item da lista?")) {
+                try {
+                    await deleteDoc(doc(db, "presentes", id));
+                } catch (error) {
+                    console.error("Erro ao excluir: ", error);
+                }
+            }
+        };
+
+        window.deleteMessage = async function(id) {
+            if (confirm("Tem certeza que deseja excluir este recado?")) {
+                try {
+                    await deleteDoc(doc(db, "recados", id));
+                } catch (error) {
+                    console.error("Erro ao excluir recado: ", error);
+                }
+            }
+        };
+
+        // Carregar Presentes em Tempo Real
+        onSnapshot(collection(db, "presentes"), (snapshot) => {
+            adminGiftsTable.innerHTML = '';
+            if (snapshot.empty) {
+                adminGiftsTable.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Nenhum presente cadastrado.</td></tr>';
+                return;
+            }
+
+            snapshot.forEach((docSnapshot) => {
+                const gift = docSnapshot.data();
+                const id = docSnapshot.id;
+
+                const iconDisplay = `<span style="font-size: 1.5rem;">${gift.icon || '🎁'}</span>`;
+                const linkHTML = gift.link ? `<a href="${gift.link}" target="_blank" class="link-btn">Ver Loja 🔗</a>` : '<span style="color:#aaa;">-</span>';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td data-label="Ícone">${iconDisplay}</td>
+                    <td data-label="Presente"><strong>${gift.title}</strong></td>
+                    <td data-label="Link da Loja">${linkHTML}</td>
+                    <td data-label="Status"><span class="badge-status ${gift.chosenBy ? 'badge-chosen' : 'badge-available'}">${gift.chosenBy ? 'Indisponível' : 'Disponível'}</span></td>
+                    <td data-label="Escolhido por">${gift.chosenBy ? gift.chosenBy : '<em style="color:#888;">Disponível</em>'}</td>
+                    <td data-label="Ações"><button class="btn-danger" onclick="deleteGift('${id}')">Excluir</button></td>
+                `;
+                adminGiftsTable.appendChild(tr);
+            });
+        });
+
+        // Função para Renderizar Tabela de RSVP com Filtro
+        function renderRsvpTable(dataList) {
+            adminRsvpTable.innerHTML = '';
+            if (dataList.length === 0) {
+                adminRsvpTable.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">Nenhuma confirmação encontrada.</td></tr>';
+                return;
+            }
+
+            dataList.forEach((rsvp) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td data-label="Nome"><strong>${rsvp.nome || 'Convidado'}</strong></td>
+                    <td data-label="Telefone">${rsvp.telefone || '-'}</td>
+                    <td data-label="Cidade">${rsvp.cidade || '-'}</td>
+                    <td data-label="Data">${rsvp.data ? new Date(rsvp.data.seconds * 1000).toLocaleDateString('pt-BR') : '-'}</td>
+                `;
+                adminRsvpTable.appendChild(tr);
+            });
+        }
+
+        // Carregar RSVP e Guardar em Cache para Filtragem
+        onSnapshot(collection(db, "rsvp"), (snapshot) => {
+            rsvpDataCache = [];
+            snapshot.forEach((docSnapshot) => {
+                rsvpDataCache.push(docSnapshot.data());
+            });
+            const filterValue = filterCityInput.value.toLowerCase().trim();
+            const filteredData = rsvpDataCache.filter(item => (item.cidade || '').toLowerCase().includes(filterValue));
+            renderRsvpTable(filteredData);
+        });
+
+        // Evento de Digitação no Filtro de Cidade
+        filterCityInput.addEventListener('input', (e) => {
+            const filterValue = e.target.value.toLowerCase().trim();
+            const filteredData = rsvpDataCache.filter(item => (item.cidade || '').toLowerCase().includes(filterValue));
+            renderRsvpTable(filteredData);
+        });
+
+        // Carregar Recados dos Noivos em Tempo Real
+        onSnapshot(collection(db, "recados"), (snapshot) => {
+            adminMessagesContainer.innerHTML = '';
+            if (snapshot.empty) {
+                adminMessagesContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 20px;">Nenhum recado deixado ainda.</p>';
+                return;
+            }
+
+            snapshot.forEach((docSnapshot) => {
+                const msg = docSnapshot.data();
+                const id = docSnapshot.id;
+                const formattedDate = msg.data ? new Date(msg.data.seconds * 1000).toLocaleDateString('pt-BR') : '-';
+
+                const card = document.createElement('div');
+                card.className = 'message-card';
+                card.innerHTML = `
+                    <div>
+                        <div class="message-header">
+                            <span class="message-author">${msg.nome || 'Anônimo'}</span>
+                            <span class="message-date">${formattedDate}</span>
+                        </div>
+                        <p class="message-body">"${msg.mensagem || ''}"</p>
+                    </div>
+                    <div class="message-actions">
+                        <button class="btn-danger" onclick="deleteMessage('${id}')">Excluir</button>
+                    </div>
+                `;
+                adminMessagesContainer.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>
