@@ -2,11 +2,9 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Felipe & Enayra - Lista de Presentes</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&family=Great+Vibes&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
         :root {
             --brown: #6D4C41;
@@ -22,14 +20,14 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body, html {
             font-family: 'Montserrat', sans-serif;
             background-color: var(--beige);
             color: var(--text-dark);
-            overflow-x: hidden;
-            scroll-behavior: smooth;
+            min-height: 100vh;
         }
 
         h1, h2, h3 {
@@ -40,7 +38,6 @@
         .cursive-text {
             font-family: 'Great Vibes', cursive;
             color: var(--brown);
-            font-weight: 400;
         }
 
         /* Menu Superior */
@@ -49,51 +46,41 @@
             top: 0;
             left: 0;
             width: 100%;
-            background: transparent;
+            background: rgba(62, 39, 35, 0.95);
+            backdrop-filter: blur(10px);
             z-index: 9999;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
-            padding: 1.5rem 3rem;
-            transition: all 0.4s ease;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-logo {
+            color: var(--gold);
+            font-size: 1.8rem;
+            text-decoration: none;
         }
 
         .nav-links {
             display: flex;
-            gap: 2.5rem;
+            gap: 2rem;
             list-style: none;
             align-items: center;
         }
 
         .nav-links a {
             text-decoration: none;
-            color: var(--text-dark);
+            color: var(--white);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             transition: color 0.3s ease;
-            position: relative;
-            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--gold);
-            transition: width 0.3s ease;
         }
 
         .nav-links a:hover {
             color: var(--gold);
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
         }
 
         .menu-toggle {
@@ -112,35 +99,31 @@
             display: block;
             width: 100%;
             height: 2.5px;
-            background-color: var(--text-dark);
+            background-color: var(--white);
             border-radius: 2px;
             transition: all 0.3s ease;
-            filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.8));
         }
 
         .menu-toggle.active span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
         .menu-toggle.active span:nth-child(2) { opacity: 0; }
         .menu-toggle.active span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
 
-        .screen-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            padding: 7rem 2rem 4rem 2rem;
+        /* Conteúdo Principal */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 7rem 1.5rem 4rem 1.5rem;
+        }
+
+        .header-section {
             text-align: center;
-            background: linear-gradient(135deg, var(--beige) 0%, #faf8f3 100%);
+            margin-bottom: 3rem;
         }
 
-        .section-title {
-            margin-bottom: 40px;
-        }
-
-        .section-title h2 {
-            font-size: 3.5rem;
+        .header-section h1 {
+            font-size: 3.2rem;
             color: var(--brown);
+            margin-bottom: 10px;
         }
 
         .divider {
@@ -151,99 +134,96 @@
             border-radius: 2px;
         }
 
-        /* Lista de Presentes */
+        .intro-text {
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* Grid de Presentes */
         .gifts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 25px;
-            max-width: 1100px;
-            width: 100%;
         }
 
         .gift-card {
             background: var(--white);
+            border-radius: 20px;
             padding: 30px 20px;
-            border-radius: 15px;
+            text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-align: center;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            transition: transform 0.3s ease;
+            justify-content: space-between;
+            border-top: 4px solid var(--gold);
+            position: relative;
         }
 
         .gift-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(109, 76, 65, 0.15);
         }
 
-        .gift-media {
-            font-size: 3rem;
+        .gift-icon {
+            font-size: 3.5rem;
             margin-bottom: 15px;
-            height: 90px;
-            width: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #faf8f3;
-            border-radius: 50%;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            overflow: hidden;
         }
 
         .gift-title {
-            font-family: 'Playfair Display', serif;
             font-size: 1.3rem;
             color: var(--brown);
-            margin-bottom: 10px;
-        }
-
-        .gift-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .gift-btn {
-            background: var(--brown);
-            color: var(--white);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            text-decoration: none;
+            margin-bottom: 15px;
             font-weight: 600;
         }
 
-        .gift-btn:hover {
+        .btn-choose {
+            background: var(--brown);
+            color: var(--white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-choose:hover {
             background: var(--gold);
             color: var(--text-dark);
         }
 
-        .shop-btn {
-            background: transparent;
+        .gift-card.unavailable {
+            opacity: 0.65;
+            border-top-color: #ccc;
+        }
+
+        .gift-card.unavailable .btn-choose {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .store-link {
+            display: inline-block;
+            margin-bottom: 15px;
             color: var(--green);
-            border: 1.5px solid var(--green);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
         }
 
-        .shop-btn:hover {
-            background: var(--green);
-            color: var(--white);
+        .store-link:hover {
+            text-decoration: underline;
         }
 
-        .gift-card.chosen {
-            background: #f4f1ea;
-            border: 1px dashed var(--light-brown);
-            opacity: 0.85;
-        }
-
-        /* Modal */
+        /* Modal de Escolha do Presente */
         .modal {
             display: none;
             position: fixed;
@@ -257,13 +237,13 @@
 
         .modal-content {
             background: var(--white);
-            padding: 40px;
-            border-radius: 15px;
+            padding: 35px 25px;
+            border-radius: 20px;
             max-width: 450px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
 
         .modal-close {
@@ -284,45 +264,20 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: var(--brown);
+            font-size: 0.9rem;
         }
 
         .input-control {
             width: 100%;
-            padding: 15px;
+            padding: 12px 15px;
             border: 1px solid #ddd;
             border-radius: 10px;
             font-family: 'Montserrat', sans-serif;
             font-size: 1rem;
             background: #faf8f3;
-            transition: border-color 0.3s ease;
         }
 
-        .input-control:focus {
-            outline: none;
-            border-color: var(--gold);
-        }
-
-        .submit-btn {
-            width: 100%;
-            background: var(--green);
-            color: var(--white);
-            border: none;
-            padding: 15px;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .submit-btn:hover {
-            background: var(--brown);
-            transform: translateY(-3px);
-        }
-
-        /* Botão de Áudio */
+        /* Botão do Áudio */
         #audio-toggle {
             position: fixed;
             bottom: 25px;
@@ -348,27 +303,15 @@
             color: var(--gold);
         }
 
-        .animate-element {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        footer {
-            background-color: var(--brown);
-            color: var(--white);
-            padding: 3rem 2rem;
-            text-align: center;
-            width: 100%;
-        }
-
         @media (max-width: 768px) {
-            .navbar { padding: 1.2rem 1.5rem; }
             .menu-toggle { display: flex; }
             .nav-links {
                 position: fixed;
-                top: 0; right: -100%;
-                width: 75%; height: 100vh;
-                background-color: rgba(62, 39, 35, 0.95);
+                top: 0;
+                right: -100%;
+                width: 75%;
+                height: 100vh;
+                background-color: rgba(62, 39, 35, 0.98);
                 backdrop-filter: blur(12px);
                 flex-direction: column;
                 justify-content: center;
@@ -377,7 +320,7 @@
                 transition: right 0.4s ease-in-out;
             }
             .nav-links.active { right: 0; }
-            .nav-links a { font-size: 1.1rem; color: var(--white); text-shadow: none; }
+            .header-section h1 { font-size: 2.4rem; }
         }
     </style>
 </head>
@@ -385,67 +328,60 @@
 
     <!-- Menu Superior -->
     <nav class="navbar">
-        <button class="menu-toggle" id="mobile-menu" aria-label="Abrir Menu">
+        <a href="index.html" class="nav-logo cursive-text">Felipe & Enayra</a>
+        <button class="menu-toggle" id="mobile-menu">
             <span></span>
             <span></span>
             <span></span>
         </button>
         <ul class="nav-links" id="nav-links">
-            <li><a href="index.html" class="nav-link">Início</a></li>
-            <li><a href="index.html#historia" class="nav-link">Nossa História</a></li>
-            <li><a href="index.html#momentos" class="nav-link">Momentos</a></li>
-            <li><a href="presentes.html" class="nav-link" style="color: var(--gold);">Presentes</a></li>
-            <li><a href="index.html#cerimonia" class="nav-link">Cerimônia</a></li>
-            <li><a href="index.html#rsvp" class="nav-link">Confirmar Presença</a></li>
-            <li><a href="index.html#recados" class="nav-link">Recados</a></li>
-            <li><a href="admin.html" class="nav-link" style="color: var(--gold);">Admin 🔐</a></li>
+            <li><a href="index.html#inicio">Início</a></li>
+            <li><a href="index.html#historia">Nossa História</a></li>
+            <li><a href="index.html#momentos">Momentos</a></li>
+            <li><a href="presentes.html" style="color: var(--gold);">Presentes</a></li>
+            <li><a href="index.html#cerimonia">Cerimônia</a></li>
+            <li><a href="index.html#rsvp">Confirmar Presença</a></li>
+            <li><a href="index.html#recados">Recados</a></li>
+            <li><a href="admin.html" style="color: var(--gold);">Admin 🔐</a></li>
         </ul>
     </nav>
 
-    <!-- Botão de Música e Player de Áudio -->
+    <!-- Player de Áudio Persistente -->
     <button id="audio-toggle">🎵</button>
     <audio id="background-audio"></audio>
 
-    <section class="screen-section">
-        <div class="section-title animate-element">
-            <span class="cursive-text" style="font-size: 3rem;">Com todo carinho</span>
-            <h2>Lista de Presentes</h2>
+    <div class="container">
+        <div class="header-section">
+            <span class="cursive-text" style="font-size: 3rem;">Nossa Lista de</span>
+            <h1>Presentes</h1>
             <div class="divider"></div>
-            <p style="max-width: 600px; margin: 15px auto; font-size: 1.05rem;">
-                Ficamos honrados com o seu carinho. Escolha um item abaixo. Assim que você confirmar, o item será reservado em tempo real.
+            <p class="intro-text">
+                O maior presente é ter você ao nosso lado nesse dia tão especial! Se desejar nos abençoar com um presente, você pode escolher um dos itens abaixo:
             </p>
         </div>
 
-        <div class="gifts-grid animate-element" id="gifts-container">
-            <p style="grid-column: 1 / -1; color: var(--light-brown);">Carregando presentes...</p>
-        </div>
-    </section>
-
-    <!-- Modal de Reserva -->
-    <div class="modal" id="gift-modal">
-        <div class="modal-content">
-            <span class="modal-close" id="modal-close">&times;</span>
-            <h3 id="modal-gift-title" style="color: var(--brown); margin-bottom: 15px;">Escolher Presente</h3>
-            <p style="font-size: 0.95rem; margin-bottom: 20px;">Informe seu nome para confirmar a escolha:</p>
-            <form id="gift-form">
-                <input type="hidden" id="modal-gift-id">
-                <div class="input-group">
-                    <label for="gift-guest-name">Seu Nome Completo</label>
-                    <input type="text" id="gift-guest-name" class="input-control" placeholder="Digite seu nome..." required>
-                </div>
-                <button type="submit" class="submit-btn" style="background: var(--brown);">Confirmar Escolha 🤍</button>
-            </form>
+        <div id="gifts-container" class="gifts-grid">
+            <p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 40px;">Carregando lista de presentes...</p>
         </div>
     </div>
 
-    <footer>
-        <div class="animate-element">
-            <span class="cursive-text" style="font-size: 3.5rem; color: var(--gold); display: block; margin-bottom: 20px;">Felipe & Enayra</span>
-            <p style="max-width: 600px; margin: 0 auto; font-size: 1.1rem; font-weight: 300; line-height: 1.6;">
-                O amor nos trouxe até aqui. 🤍
+    <!-- Modal de Escolha do Presente -->
+    <div class="modal" id="gift-modal">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close">&times;</span>
+            <h3 id="modal-gift-title" style="color: var(--brown); margin-bottom: 15px; font-size: 1.4rem;">Presente</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 20px; color: #666;">
+                Digite seu nome completo para que os noivos saibam quem os presenteou!
             </p>
+            <form id="choose-gift-form">
+                <div class="input-group">
+                    <label for="giver-name">Seu Nome Completo *</label>
+                    <input type="text" id="giver-name" class="input-control" placeholder="Digite seu nome..." required>
+                </div>
+                <button type="submit" id="confirm-gift-btn" class="btn-choose" style="padding: 14px;">Confirmar Presente 🤍</button>
+            </form>
         </div>
-    </footer>
+    </div>
 
     <!-- SDK do Firebase (Versão Modular v12) -->
     <script type="module">
@@ -464,103 +400,110 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Menu Mobile
         const mobileMenu = document.getElementById('mobile-menu');
         const navLinks = document.getElementById('nav-links');
-        const navItems = document.querySelectorAll('.nav-link');
 
         mobileMenu.addEventListener('click', () => {
             mobileMenu.classList.toggle('active');
             navLinks.classList.toggle('active');
         });
 
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                mobileMenu.classList.remove('active');
-                navLinks.classList.remove('active');
-            });
-        });
-
-        const giftsContainer = document.getElementById('gifts-container');
-        const modal = document.getElementById('gift-modal');
+        // Elementos do Modal
+        const giftModal = document.getElementById('gift-modal');
         const modalClose = document.getElementById('modal-close');
         const modalGiftTitle = document.getElementById('modal-gift-title');
-        const modalGiftId = document.getElementById('modal-gift-id');
-        const giftForm = document.getElementById('gift-form');
+        const chooseGiftForm = document.getElementById('choose-gift-form');
+        const confirmGiftBtn = document.getElementById('confirm-gift-btn');
+        const giftsContainer = document.getElementById('gifts-container');
 
-        let currentDocId = null;
+        let selectedGiftId = null;
 
+        const closeModal = () => { giftModal.style.display = 'none'; };
+        modalClose.addEventListener('click', closeModal);
+        window.addEventListener('click', (e) => { if (e.target === giftModal) closeModal(); });
+
+        window.openGiftModal = (id, title) => {
+            selectedGiftId = id;
+            modalGiftTitle.innerText = `Presentear com: ${title}`;
+            giftModal.style.display = 'flex';
+        };
+
+        // Carregar Lista de Presentes do Firebase em Tempo Real
         onSnapshot(collection(db, "presentes"), (snapshot) => {
             giftsContainer.innerHTML = '';
             
             if (snapshot.empty) {
-                giftsContainer.innerHTML = '<p style="grid-column: 1 / -1;">Nenhum presente cadastrado no momento.</p>';
+                giftsContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 40px;">Em breve a lista de presentes estará disponível!</p>';
                 return;
             }
 
             snapshot.forEach((docSnapshot) => {
                 const gift = docSnapshot.data();
-                const docId = docSnapshot.id;
+                const id = docSnapshot.id;
+                
+                const isAvailable = gift.disponivel !== false && !gift.chosenBy;
 
                 const card = document.createElement('div');
-                card.className = `gift-card ${gift.chosenBy ? 'chosen' : ''}`;
+                card.className = `gift-card ${isAvailable ? '' : 'unavailable'}`;
 
-                let iconDisplay = `<div class="gift-media"><span style="font-size: 2.2rem;">${gift.icon || '🎁'}</span></div>`;
+                const iconHTML = `<div class="gift-icon">${gift.icon || '🎁'}</div>`;
+                const titleHTML = `<h3 class="gift-title">${gift.title}</h3>`;
+                const linkHTML = gift.link ? `<a href="${gift.link}" target="_blank" class="store-link">🔗 Ver na Loja Exemplo</a>` : '';
 
-                let shopButtonHTML = '';
-                if (gift.link && gift.link.trim() !== '') {
-                    shopButtonHTML = `<a href="${gift.link}" target="_blank" class="gift-btn shop-btn">Comprar na Loja 🔗</a>`;
-                }
-
-                let actionButtonHTML = `<button class="gift-btn" onclick="openGiftModal('${docId}', '${gift.title}')">Quero Presentear</button>`;
-                if (gift.chosenBy) {
-                    actionButtonHTML = `<span style="font-size: 0.85rem; color: var(--green); margin-top: 10px; font-weight: 600;">✔️ Escolhido por ${gift.chosenBy}</span>`;
+                let buttonHTML = '';
+                if (isAvailable) {
+                    buttonHTML = `<button class="btn-choose" onclick="openGiftModal('${id}', '${gift.title.replace(/'/g, "\\'")}')">Escolher Presente</button>`;
+                } else {
+                    buttonHTML = `<button class="btn-choose" disabled>Reservado por ${gift.chosenBy || 'outro convidado'}</button>`;
                 }
 
                 card.innerHTML = `
-                    ${iconDisplay}
-                    <h3 class="gift-title">${gift.title}</h3>
-                    <div class="gift-actions">
-                        ${shopButtonHTML}
-                        ${actionButtonHTML}
+                    <div>
+                        ${iconHTML}
+                        ${titleHTML}
+                        ${linkHTML}
                     </div>
+                    ${buttonHTML}
                 `;
+
                 giftsContainer.appendChild(card);
             });
         });
 
-        window.openGiftModal = function(id, title) {
-            currentDocId = id;
-            modalGiftId.value = id;
-            modalGiftTitle.innerText = `Presentear: ${title}`;
-            modal.style.display = 'flex';
-        };
-
-        modalClose.addEventListener('click', () => { modal.style.display = 'none'; });
-        window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
-
-        giftForm.addEventListener('submit', async (e) => {
+        // Confirmar Escolha do Presente
+        chooseGiftForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('gift-guest-name').value.trim();
+            const giverName = document.getElementById('giver-name').value.trim();
 
-            if (name && currentDocId) {
-                try {
-                    const giftRef = doc(db, "presentes", currentDocId);
-                    await updateDoc(giftRef, {
-                        chosenBy: name,
-                        disponivel: false
-                    });
+            if (!giverName || !selectedGiftId) {
+                alert('Por favor, informe seu nome.');
+                return;
+            }
 
-                    modal.style.display = 'none';
-                    giftForm.reset();
-                    alert(`Obrigado, ${name}! Seu presente foi reservado com sucesso.`);
-                } catch (error) {
-                    console.error("Erro ao atualizar o presente: ", error);
-                    alert("Ocorreu um erro ao salvar. Tente novamente.");
-                }
+            try {
+                confirmGiftBtn.innerText = "Salvando...";
+                confirmGiftBtn.disabled = true;
+
+                const giftRef = doc(db, "presentes", selectedGiftId);
+                await updateDoc(giftRef, {
+                    chosenBy: giverName,
+                    disponivel: false
+                });
+
+                alert(`Muito obrigado, ${giverName}! Seu presente foi reservado com sucesso. 🤍`);
+                giftModal.style.display = 'none';
+                chooseGiftForm.reset();
+            } catch (error) {
+                console.error("Erro ao reservar presente:", error);
+                alert("Ocorreu um erro ao reservar o presente. Tente novamente.");
+            } finally {
+                confirmGiftBtn.innerText = "Confirmar Presente 🤍";
+                confirmGiftBtn.disabled = false;
             }
         });
 
-        // Player de Áudio Persistente (Continua de onde parou entre páginas)
+        // Player de Áudio Persistente (Aprimorado para retomada automática)
         const playlist = [
             'musicas/How Long Will I Love You.mp3',
             'musicas/Let s Stay Together.mp3',
@@ -582,7 +525,6 @@
             audioElement.currentTime = parseFloat(savedTime);
         }
 
-        // Salva o tempo continuamente
         audioElement.addEventListener('timeupdate', () => {
             localStorage.setItem('audio_time', audioElement.currentTime);
             localStorage.setItem('audio_track_index', currentTrackIndex);
@@ -597,14 +539,14 @@
             audioElement.play();
         });
 
-        const startAudio = () => {
+        const attemptPlay = () => {
             const playPromise = audioElement.play();
             if (playPromise !== undefined) {
                 playPromise.then(() => {
                     toggleAudioBtn.innerText = "⏸️";
                     localStorage.setItem('audio_is_playing', 'true');
-                    ['click', 'touchstart', 'scroll'].forEach(evt => 
-                        document.removeEventListener(evt, startAudio)
+                    ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => 
+                        document.removeEventListener(evt, attemptPlay)
                     );
                 }).catch(() => {
                     toggleAudioBtn.innerText = "🎵";
@@ -613,10 +555,11 @@
         };
 
         if (wasPlaying) {
-            window.addEventListener('load', startAudio);
-            document.addEventListener('click', startAudio);
-            document.addEventListener('touchstart', startAudio, { passive: true });
-            document.addEventListener('scroll', startAudio, { passive: true });
+            attemptPlay();
+
+            ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => 
+                document.addEventListener(evt, attemptPlay, { once: false, passive: true })
+            );
         }
 
         toggleAudioBtn.addEventListener('click', (e) => {
@@ -626,15 +569,9 @@
                 toggleAudioBtn.innerText = "🎵";
                 localStorage.setItem('audio_is_playing', 'false');
             } else {
-                startAudio();
+                attemptPlay();
             }
         });
-
-        gsap.registerPlugin(ScrollTrigger);
-        gsap.fromTo(".animate-element", 
-            { opacity: 0, y: 40, autoAlpha: 0 },
-            { opacity: 1, y: 0, autoAlpha: 1, duration: 1.5, ease: "power2.out", stagger: 0.2 }
-        );
     </script>
 </body>
 </html>
