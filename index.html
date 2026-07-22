@@ -772,7 +772,7 @@
     <!-- SDK do Firebase (Versão Modular v12) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
@@ -803,7 +803,23 @@
             });
         });
 
-        // RSVP
+        // Máscara e Validação de Telefone (Ex: (84)999504641)
+        const phoneInput = document.getElementById('rsvp-phone');
+
+        phoneInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+
+            if (value.length > 2) {
+                value = `(${value.slice(0, 2)})${value.slice(2)}`;
+            } else if (value.length > 0) {
+                value = `(${value}`;
+            }
+
+            e.target.value = value;
+        });
+
+        // RSVP com Verificação de Duplicidade no Firestore
         const rsvpForm = document.getElementById('rsvp-form');
         const openRsvpModalBtn = document.getElementById('open-rsvp-modal');
         const rsvpModal = document.getElementById('rsvp-modal');
@@ -818,8 +834,16 @@
             const telefone = document.getElementById('rsvp-phone').value.trim();
             const cidade = document.getElementById('rsvp-city').value.trim();
 
+            const rawPhoneNumbers = telefone.replace(/\D/g, '');
+
             if (!nome || !telefone || !cidade) {
                 alert('Por favor, preencha todos os campos antes de continuar.');
+                return;
+            }
+
+            if (rawPhoneNumbers.length < 10) {
+                alert('Por favor, digite um número de telefone válido com o DDD. Exemplo: (84)999504641');
+                phoneInput.focus();
                 return;
             }
 
@@ -842,26 +866,39 @@
         cancelRsvpBtn.addEventListener('click', closeModal);
         window.addEventListener('click', (e) => { if (e.target === rsvpModal) closeModal(); });
 
+        // Validação e Confirmação Final no Banco de Dados
         confirmRsvpFinalBtn.addEventListener('click', async () => {
             try {
-                confirmRsvpFinalBtn.innerText = "Salvando...";
+                confirmRsvpFinalBtn.innerText = "Verificando...";
                 confirmRsvpFinalBtn.disabled = true;
 
-                await addDoc(collection(db, "rsvp"), tempRsvpData);
+                // Consulta se o número de telefone já foi cadastrado previamente no banco
+                const rsvpRef = collection(db, "rsvp");
+                const q = query(rsvpRef, where("telefone", "==", tempRsvpData.telefone));
+                const querySnapshot = await getDocs(q);
 
-                alert(`Presença confirmada com sucesso, ${tempRsvpData.nome}! Estamos ansiosos para celebrar com você.`);
+                if (!querySnapshot.empty) {
+                    alert(`Atenção: O telefone ${tempRsvpData.telefone} já possui uma presença confirmada!`);
+                    rsvpModal.style.display = 'none';
+                    return;
+                }
+
+                confirmRsvpFinalBtn.innerText = "Salvando...";
+                await addDoc(rsvpRef, tempRsvpData);
+
+                alert(`Presença confirmada com sucesso, ${tempRsvpData.nome}! Estamos ansiosos para celebrar com você. 🤍`);
                 rsvpModal.style.display = 'none';
                 rsvpForm.reset();
             } catch (error) {
                 console.error("Erro ao salvar RSVP:", error);
-                alert("Ocorreu um erro ao salvar a confirmação. Tente novamente.");
+                alert("Ocorreu um erro ao verificar/salvar a confirmação. Tente novamente.");
             } finally {
                 confirmRsvpFinalBtn.innerText = "Sim, Confirmar!";
                 confirmRsvpFinalBtn.disabled = false;
             }
         });
 
-        // Submeter Recados (Salva no Firestore e envia por e-mail para os noivos)
+        // Submeter Recados
         const recadosForm = document.getElementById('recados-form');
         const recadoSubmitBtn = document.getElementById('recado-submit-btn');
 
@@ -879,14 +916,12 @@
                 recadoSubmitBtn.innerText = "Enviando...";
                 recadoSubmitBtn.disabled = true;
 
-                // 1. Salvar no Firestore (exibido na tela admin)
                 await addDoc(collection(db, "recados"), {
                     nome: nome,
                     mensagem: mensagem,
                     data: serverTimestamp()
                 });
 
-                // 2. Enviar por E-mail para os Noivos via Formspree
                 fetch("https://formspree.io/f/xvgopkbl", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -958,63 +993,74 @@
             document.getElementById("timer-seconds").innerText = Math.floor((difference % (1000 * 60)) / 1000).toString().padStart(2, '0');
         }, 1000);
 
-        // Player de Áudio
+        // Player de Áudio Persistente
         const playlist = [
             'musicas/How Long Will I Love You.mp3',
             'musicas/Let s Stay Together.mp3',
             'musicas/Belong Together.mp3'
         ];
 
-        let currentTrackIndex = Math.floor(Math.random() * playlist.length);
         const audioElement = document.getElementById('background-audio');
-        let isAudioPlaying = false;
-        
+        const toggleAudioBtn = document.getElementById('audio-toggle');
+
+        let savedTrackIndex = localStorage.getItem('audio_track_index');
+        let currentTrackIndex = savedTrackIndex !== null ? parseInt(savedTrackIndex, 10) : Math.floor(Math.random() * playlist.length);
+        let savedTime = localStorage.getItem('audio_time');
+        let wasPlaying = localStorage.getItem('audio_is_playing') === 'true';
+
         audioElement.src = playlist[currentTrackIndex];
-        audioElement.load(); 
+        audioElement.load();
+
+        if (savedTime && !isNaN(parseFloat(savedTime))) {
+            audioElement.currentTime = parseFloat(savedTime);
+        }
+
+        audioElement.addEventListener('timeupdate', () => {
+            localStorage.setItem('audio_time', audioElement.currentTime);
+            localStorage.setItem('audio_track_index', currentTrackIndex);
+        });
 
         audioElement.addEventListener('ended', () => {
             currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
             audioElement.src = playlist[currentTrackIndex];
+            localStorage.setItem('audio_track_index', currentTrackIndex);
+            localStorage.setItem('audio_time', 0);
             audioElement.load();
             audioElement.play();
         });
 
-        const toggleAudioBtn = document.getElementById('audio-toggle');
-
         const startAudio = () => {
-            if (isAudioPlaying) return;
-            
             const playPromise = audioElement.play();
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    isAudioPlaying = true;
                     toggleAudioBtn.innerText = "⏸️";
-                    
+                    localStorage.setItem('audio_is_playing', 'true');
                     ['click', 'touchstart', 'scroll'].forEach(evt => 
                         document.removeEventListener(evt, startAudio)
                     );
                 }).catch(() => {
-                    isAudioPlaying = false;
                     toggleAudioBtn.innerText = "🎵";
                 });
             }
         };
 
+        if (wasPlaying) {
+            window.addEventListener('load', startAudio);
+            document.addEventListener('click', startAudio);
+            document.addEventListener('touchstart', startAudio, { passive: true });
+            document.addEventListener('scroll', startAudio, { passive: true });
+        }
+
         toggleAudioBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); 
-            if (isAudioPlaying) {
+            e.stopPropagation();
+            if (!audioElement.paused) {
                 audioElement.pause();
                 toggleAudioBtn.innerText = "🎵";
-                isAudioPlaying = false;
+                localStorage.setItem('audio_is_playing', 'false');
             } else {
                 startAudio();
             }
         });
-
-        window.addEventListener('load', startAudio);
-        document.addEventListener('click', startAudio);
-        document.addEventListener('touchstart', startAudio, { passive: true });
-        document.addEventListener('scroll', startAudio, { passive: true });
     </script>
 </body>
 </html>
