@@ -205,6 +205,12 @@
             margin-bottom: 20px;
         }
 
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         .admin-section h3 {
             color: var(--brown);
             font-size: 1.6rem;
@@ -456,6 +462,11 @@
                 align-items: stretch;
             }
 
+            .filter-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
             .admin-section h3 {
                 font-size: 1.3rem;
             }
@@ -583,12 +594,13 @@
             </div>
         </div>
 
-        <!-- Seção: Verificar Confirmações de Presença (RSVP) com Filtro por Cidade e WhatsApp -->
+        <!-- Seção: Verificar Confirmações de Presença (RSVP) com Filtros e Exclusão -->
         <div class="admin-section">
             <div class="admin-section-header">
                 <h3>Confirmações de Presença (RSVP)</h3>
-                <div style="min-width: 220px;">
-                    <input type="text" id="filter-city" class="input-control" placeholder="🔍 Filtrar por cidade..." style="padding: 10px 14px; font-size: 0.9rem;">
+                <div class="filter-group">
+                    <input type="text" id="filter-name" class="input-control" placeholder="🔍 Filtrar por nome..." style="padding: 10px 14px; font-size: 0.9rem; min-width: 180px;">
+                    <input type="text" id="filter-city" class="input-control" placeholder="📍 Filtrar por cidade..." style="padding: 10px 14px; font-size: 0.9rem; min-width: 180px;">
                 </div>
             </div>
             <div class="table-responsive">
@@ -599,6 +611,7 @@
                             <th>Telefone / WhatsApp</th>
                             <th>Cidade</th>
                             <th>Data</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="admin-rsvp-table">
@@ -617,7 +630,7 @@
         </div>
     </div>
 
-    <!-- Modal de Edição de Presente (Com alteração de Status) -->
+    <!-- Modal de Edição de Presente -->
     <div class="modal" id="edit-gift-modal">
         <div class="modal-content">
             <span class="modal-close" id="edit-modal-close">&times;</span>
@@ -688,6 +701,7 @@
         const saveGiftBtn = document.getElementById('save-gift-btn');
         const adminGiftsTable = document.getElementById('admin-gifts-table');
         const adminRsvpTable = document.getElementById('admin-rsvp-table');
+        const filterNameInput = document.getElementById('filter-name');
         const filterCityInput = document.getElementById('filter-city');
         const adminMessagesContainer = document.getElementById('admin-messages-container');
 
@@ -725,7 +739,6 @@
             location.reload();
         });
 
-        // Alternar exibição do campo "Reservado por" no Modal de Edição
         editStatusSelect.addEventListener('change', (e) => {
             if (e.target.value === "false") {
                 editChosenGroup.style.display = 'block';
@@ -774,7 +787,17 @@
                 try {
                     await deleteDoc(doc(db, "presentes", id));
                 } catch (error) {
-                    console.error("Erro ao excluir: ", error);
+                    console.error("Erro ao excluir presente: ", error);
+                }
+            }
+        };
+
+        window.deleteRsvp = async function(id) {
+            if (confirm("Tem certeza que deseja excluir este convidado da lista de RSVP?")) {
+                try {
+                    await deleteDoc(doc(db, "rsvp", id));
+                } catch (error) {
+                    console.error("Erro ao excluir RSVP: ", error);
                 }
             }
         };
@@ -885,7 +908,6 @@
             });
         });
 
-        // Função para Limpar e Formatar Número do WhatsApp
         function formatPhoneForWhatsApp(phone) {
             if (!phone) return '';
             let cleaned = phone.replace(/\D/g, '');
@@ -895,15 +917,17 @@
             return cleaned;
         }
 
-        // Função para Renderizar Tabela de RSVP com Filtro e Botão WhatsApp
+        // Função para Renderizar Tabela de RSVP com Filtro e Botões (WhatsApp e Excluir)
         function renderRsvpTable(dataList) {
             adminRsvpTable.innerHTML = '';
             if (dataList.length === 0) {
-                adminRsvpTable.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">Nenhuma confirmação encontrada.</td></tr>';
+                adminRsvpTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhuma confirmação encontrada.</td></tr>';
                 return;
             }
 
-            dataList.forEach((rsvp) => {
+            dataList.forEach((item) => {
+                const rsvp = item.data;
+                const id = item.id;
                 const rawPhone = rsvp.telefone || '';
                 const cleanPhone = formatPhoneForWhatsApp(rawPhone);
                 
@@ -924,28 +948,41 @@
                     <td data-label="Telefone">${phoneHTML}</td>
                     <td data-label="Cidade">${rsvp.cidade || '-'}</td>
                     <td data-label="Data">${rsvp.data ? new Date(rsvp.data.seconds * 1000).toLocaleDateString('pt-BR') : '-'}</td>
+                    <td data-label="Ações">
+                        <button class="btn-danger" onclick="deleteRsvp('${id}')">Excluir</button>
+                    </td>
                 `;
                 adminRsvpTable.appendChild(tr);
             });
         }
 
-        // Carregar RSVP e Guardar em Cache para Filtragem
+        function filterAndRenderRsvp() {
+            const nameVal = filterNameInput.value.toLowerCase().trim();
+            const cityVal = filterCityInput.value.toLowerCase().trim();
+
+            const filtered = rsvpDataCache.filter(item => {
+                const nomeMatch = (item.data.nome || '').toLowerCase().includes(nameVal);
+                const cidadeMatch = (item.data.cidade || '').toLowerCase().includes(cityVal);
+                return nomeMatch && cidadeMatch;
+            });
+
+            renderRsvpTable(filtered);
+        }
+
+        // Carregar RSVP e Guardar em Cache com ID para Exclusão
         onSnapshot(collection(db, "rsvp"), (snapshot) => {
             rsvpDataCache = [];
             snapshot.forEach((docSnapshot) => {
-                rsvpDataCache.push(docSnapshot.data());
+                rsvpDataCache.push({
+                    id: docSnapshot.id,
+                    data: docSnapshot.data()
+                });
             });
-            const filterValue = filterCityInput.value.toLowerCase().trim();
-            const filteredData = rsvpDataCache.filter(item => (item.cidade || '').toLowerCase().includes(filterValue));
-            renderRsvpTable(filteredData);
+            filterAndRenderRsvp();
         });
 
-        // Evento de Digitação no Filtro de Cidade
-        filterCityInput.addEventListener('input', (e) => {
-            const filterValue = e.target.value.toLowerCase().trim();
-            const filteredData = rsvpDataCache.filter(item => (item.cidade || '').toLowerCase().includes(filterValue));
-            renderRsvpTable(filteredData);
-        });
+        filterNameInput.addEventListener('input', filterAndRenderRsvp);
+        filterCityInput.addEventListener('input', filterAndRenderRsvp);
 
         // Carregar Recados dos Noivos em Tempo Real
         onSnapshot(collection(db, "recados"), (snapshot) => {
