@@ -137,7 +137,6 @@
             gap: 20px;
         }
 
-        /* Botões do Cabeçalho - Desktop */
         .header-actions {
             display: flex;
             gap: 12px;
@@ -216,7 +215,6 @@
             font-size: 1.6rem;
         }
 
-        /* Grid de Formulário de Cadastro */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -224,7 +222,6 @@
             align-items: flex-end;
         }
 
-        /* Tabelas e Layout Responsivo */
         .table-responsive {
             width: 100%;
         }
@@ -337,7 +334,6 @@
             border: 1px solid #ccc;
         }
 
-        /* Cards para Lista de Recados */
         .messages-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -395,7 +391,6 @@
             text-align: right;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -425,7 +420,6 @@
             color: var(--brown);
         }
 
-        /* Otimização Específica para Telas Menores (Mobile) */
         @media (max-width: 768px) {
             #admin-panel {
                 padding: 1.2rem 0.8rem 3rem 0.8rem;
@@ -621,9 +615,14 @@
             </div>
         </div>
 
-        <!-- Seção: Visualizar Recados dos Noivos -->
+        <!-- Seção: Visualizar e Baixar Recados dos Noivos -->
         <div class="admin-section">
-            <h3>Recados para os Noivos 💌</h3>
+            <div class="admin-section-header">
+                <h3>Recados para os Noivos 💌</h3>
+                <button id="download-messages-btn" class="btn-header btn-header-home" style="font-size: 0.8rem; padding: 8px 16px;">
+                    📥 Baixar Recados (.csv)
+                </button>
+            </div>
             <div id="admin-messages-container" class="messages-grid">
                 <!-- Carregado via Firebase -->
             </div>
@@ -704,6 +703,7 @@
         const filterNameInput = document.getElementById('filter-name');
         const filterCityInput = document.getElementById('filter-city');
         const adminMessagesContainer = document.getElementById('admin-messages-container');
+        const downloadMessagesBtn = document.getElementById('download-messages-btn');
 
         const editGiftModal = document.getElementById('edit-gift-modal');
         const editModalClose = document.getElementById('edit-modal-close');
@@ -714,6 +714,7 @@
 
         let rsvpDataCache = [];
         let giftsCache = {};
+        let messagesDataCache = [];
 
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -917,7 +918,7 @@
             return cleaned;
         }
 
-        // Função para Renderizar Tabela de RSVP com Filtro e Botões (WhatsApp e Excluir)
+        // Renderizar Tabela de RSVP com Filtro e Botões (WhatsApp e Excluir)
         function renderRsvpTable(dataList) {
             adminRsvpTable.innerHTML = '';
             if (dataList.length === 0) {
@@ -969,7 +970,7 @@
             renderRsvpTable(filtered);
         }
 
-        // Carregar RSVP e Guardar em Cache com ID para Exclusão
+        // Carregar RSVP em Tempo Real
         onSnapshot(collection(db, "rsvp"), (snapshot) => {
             rsvpDataCache = [];
             snapshot.forEach((docSnapshot) => {
@@ -984,9 +985,11 @@
         filterNameInput.addEventListener('input', filterAndRenderRsvp);
         filterCityInput.addEventListener('input', filterAndRenderRsvp);
 
-        // Carregar Recados dos Noivos em Tempo Real
+        // Carregar Recados e Manter no Cache para Download
         onSnapshot(collection(db, "recados"), (snapshot) => {
             adminMessagesContainer.innerHTML = '';
+            messagesDataCache = [];
+
             if (snapshot.empty) {
                 adminMessagesContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 20px;">Nenhum recado deixado ainda.</p>';
                 return;
@@ -996,6 +999,12 @@
                 const msg = docSnapshot.data();
                 const id = docSnapshot.id;
                 const formattedDate = msg.data ? new Date(msg.data.seconds * 1000).toLocaleDateString('pt-BR') : '-';
+
+                messagesDataCache.push({
+                    nome: msg.nome || 'Anônimo',
+                    mensagem: msg.mensagem || '',
+                    data: formattedDate
+                });
 
                 const card = document.createElement('div');
                 card.className = 'message-card';
@@ -1013,6 +1022,32 @@
                 `;
                 adminMessagesContainer.appendChild(card);
             });
+        });
+
+        // Função de Download dos Recados em Arquivo CSV
+        downloadMessagesBtn.addEventListener('click', () => {
+            if (messagesDataCache.length === 0) {
+                alert("Não há recados para baixar no momento.");
+                return;
+            }
+
+            let csvContent = "\uFEFFData;Nome;Mensagem\n";
+
+            messagesDataCache.forEach(row => {
+                const cleanNome = `"${row.nome.replace(/"/g, '""')}"`;
+                const cleanMsg = `"${row.mensagem.replace(/"/g, '""')}"`;
+                csvContent += `${row.data};${cleanNome};${cleanMsg}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Recados_Noivos_Felipe_Enayra.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     </script>
 </body>
