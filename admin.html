@@ -15,6 +15,7 @@
             --text-dark: #3E2723;
             --light-brown: #A1887F;
             --red: #C62828;
+            --blue: #1976D2;
         }
 
         * {
@@ -259,6 +260,28 @@
             color: #e65100;
         }
 
+        .action-buttons-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-edit {
+            background: var(--blue);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            width: auto;
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-edit:hover {
+            background: #0d47a1;
+        }
+
         .btn-danger {
             background: var(--red);
             padding: 8px 14px;
@@ -306,6 +329,7 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
+            overflow: hidden;
         }
 
         .message-header {
@@ -315,17 +339,20 @@
             margin-bottom: 12px;
             border-bottom: 1px solid #e0dcd0;
             padding-bottom: 10px;
+            gap: 10px;
         }
 
         .message-author {
             font-weight: 600;
             color: var(--brown);
             font-size: 1.05rem;
+            word-break: break-word;
         }
 
         .message-date {
             font-size: 0.75rem;
             color: #888;
+            white-space: nowrap;
         }
 
         .message-body {
@@ -334,10 +361,43 @@
             color: var(--text-dark);
             margin-bottom: 15px;
             font-size: 0.95rem;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
         }
 
         .message-actions {
             text-align: right;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 35px 25px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--brown);
         }
 
         /* Otimização Específica para Telas Menores (Mobile) */
@@ -538,10 +598,34 @@
         </div>
     </div>
 
+    <!-- Modal de Edição de Presente -->
+    <div class="modal" id="edit-gift-modal">
+        <div class="modal-content">
+            <span class="modal-close" id="edit-modal-close">&times;</span>
+            <h3 style="color: var(--brown); margin-bottom: 20px; font-size: 1.4rem;">Editar Presente</h3>
+            <form id="edit-gift-form">
+                <input type="hidden" id="edit-gift-id">
+                <div class="input-group">
+                    <label for="edit-gift-title">Nome do Presente *</label>
+                    <input type="text" id="edit-gift-title" class="input-control" required>
+                </div>
+                <div class="input-group">
+                    <label for="edit-gift-icon">Ícone (Emoji)</label>
+                    <input type="text" id="edit-gift-icon" class="input-control">
+                </div>
+                <div class="input-group">
+                    <label for="edit-gift-link">Link da Loja</label>
+                    <input type="url" id="edit-gift-link" class="input-control">
+                </div>
+                <button type="submit" id="update-gift-btn" class="btn">Atualizar Item</button>
+            </form>
+        </div>
+    </div>
+
     <!-- SDK do Firebase (Versão Modular v12) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
@@ -571,7 +655,13 @@
         const filterCityInput = document.getElementById('filter-city');
         const adminMessagesContainer = document.getElementById('admin-messages-container');
 
+        const editGiftModal = document.getElementById('edit-gift-modal');
+        const editModalClose = document.getElementById('edit-modal-close');
+        const editGiftForm = document.getElementById('edit-gift-form');
+        const updateGiftBtn = document.getElementById('update-gift-btn');
+
         let rsvpDataCache = [];
+        let giftsCache = {};
 
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -642,6 +732,56 @@
             }
         };
 
+        window.openEditGiftModal = function(id) {
+            const gift = giftsCache[id];
+            if (!gift) return;
+
+            document.getElementById('edit-gift-id').value = id;
+            document.getElementById('edit-gift-title').value = gift.title || '';
+            document.getElementById('edit-gift-icon').value = gift.icon || '';
+            document.getElementById('edit-gift-link').value = gift.link || '';
+
+            editGiftModal.style.display = 'flex';
+        };
+
+        editModalClose.addEventListener('click', () => { editGiftModal.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === editGiftModal) editGiftModal.style.display = 'none'; });
+
+        editGiftForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-gift-id').value;
+            const title = document.getElementById('edit-gift-title').value.trim();
+            let icon = document.getElementById('edit-gift-icon').value.trim();
+            const link = document.getElementById('edit-gift-link').value.trim();
+
+            if (!icon) {
+                icon = "🎁";
+            }
+
+            if (id && title) {
+                try {
+                    updateGiftBtn.innerText = "Atualizando...";
+                    updateGiftBtn.disabled = true;
+
+                    const giftRef = doc(db, "presentes", id);
+                    await updateDoc(giftRef, {
+                        title: title,
+                        icon: icon,
+                        link: link || ""
+                    });
+
+                    editGiftModal.style.display = 'none';
+                    alert("Presente atualizado com sucesso!");
+                } catch (error) {
+                    console.error("Erro ao atualizar presente: ", error);
+                    alert("Erro ao atualizar o presente. Tente novamente.");
+                } finally {
+                    updateGiftBtn.innerText = "Atualizar Item";
+                    updateGiftBtn.disabled = false;
+                }
+            }
+        });
+
         window.deleteMessage = async function(id) {
             if (confirm("Tem certeza que deseja excluir este recado?")) {
                 try {
@@ -655,6 +795,8 @@
         // Carregar Presentes em Tempo Real
         onSnapshot(collection(db, "presentes"), (snapshot) => {
             adminGiftsTable.innerHTML = '';
+            giftsCache = {};
+
             if (snapshot.empty) {
                 adminGiftsTable.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Nenhum presente cadastrado.</td></tr>';
                 return;
@@ -663,6 +805,7 @@
             snapshot.forEach((docSnapshot) => {
                 const gift = docSnapshot.data();
                 const id = docSnapshot.id;
+                giftsCache[id] = gift;
 
                 const iconDisplay = `<span style="font-size: 1.5rem;">${gift.icon || '🎁'}</span>`;
                 const linkHTML = gift.link ? `<a href="${gift.link}" target="_blank" class="link-btn">Ver Loja 🔗</a>` : '<span style="color:#aaa;">-</span>';
@@ -674,7 +817,12 @@
                     <td data-label="Link da Loja">${linkHTML}</td>
                     <td data-label="Status"><span class="badge-status ${gift.chosenBy ? 'badge-chosen' : 'badge-available'}">${gift.chosenBy ? 'Indisponível' : 'Disponível'}</span></td>
                     <td data-label="Escolhido por">${gift.chosenBy ? gift.chosenBy : '<em style="color:#888;">Disponível</em>'}</td>
-                    <td data-label="Ações"><button class="btn-danger" onclick="deleteGift('${id}')">Excluir</button></td>
+                    <td data-label="Ações">
+                        <div class="action-buttons-group">
+                            <button class="btn-edit" onclick="openEditGiftModal('${id}')">Editar</button>
+                            <button class="btn-danger" onclick="deleteGift('${id}')">Excluir</button>
+                        </div>
+                    </td>
                 `;
                 adminGiftsTable.appendChild(tr);
             });
