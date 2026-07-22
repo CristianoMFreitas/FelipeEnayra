@@ -829,6 +829,7 @@
 
         let tempRsvpData = {};
 
+        // RSVP com Validação de Nome + Sobrenome e Telefone
         openRsvpModalBtn.addEventListener('click', () => {
             const nome = document.getElementById('rsvp-name').value.trim();
             const telefone = document.getElementById('rsvp-phone').value.trim();
@@ -841,6 +842,15 @@
                 return;
             }
 
+            // Validação de Nome + Sobrenome (mínimo de 2 palavras com pelo menos 2 caracteres cada)
+            const nameParts = nome.split(/\s+/).filter(part => part.length >= 2);
+            if (nameParts.length < 2) {
+                alert('Por favor, digite seu nome e sobrenome completos.');
+                document.getElementById('rsvp-name').focus();
+                return;
+            }
+
+            // Validação de Telefone (mínimo de 10 dígitos)
             if (rawPhoneNumbers.length < 10) {
                 alert('Por favor, digite um número de telefone válido com o DDD. Exemplo: (84)999504641');
                 phoneInput.focus();
