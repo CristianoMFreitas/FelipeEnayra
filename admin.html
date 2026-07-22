@@ -16,6 +16,7 @@
             --light-brown: #A1887F;
             --red: #C62828;
             --blue: #1976D2;
+            --whatsapp-green: #25D366;
         }
 
         * {
@@ -298,6 +299,24 @@
             background: #b71c1c;
         }
 
+        .btn-whatsapp {
+            background: var(--whatsapp-green);
+            color: var(--white);
+            padding: 6px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1eb854;
+        }
+
         .link-btn {
             display: inline-flex;
             align-items: center;
@@ -564,7 +583,7 @@
             </div>
         </div>
 
-        <!-- Seção: Verificar Confirmações de Presença (RSVP) com Filtro por Cidade -->
+        <!-- Seção: Verificar Confirmações de Presença (RSVP) com Filtro por Cidade e WhatsApp -->
         <div class="admin-section">
             <div class="admin-section-header">
                 <h3>Confirmações de Presença (RSVP)</h3>
@@ -577,7 +596,7 @@
                     <thead>
                         <tr>
                             <th>Nome do Convidado</th>
-                            <th>Telefone</th>
+                            <th>Telefone / WhatsApp</th>
                             <th>Cidade</th>
                             <th>Data</th>
                         </tr>
@@ -589,7 +608,7 @@
             </div>
         </div>
 
-        <!-- Nova Seção: Visualizar Recados dos Noivos -->
+        <!-- Seção: Visualizar Recados dos Noivos -->
         <div class="admin-section">
             <h3>Recados para os Noivos 💌</h3>
             <div id="admin-messages-container" class="messages-grid">
@@ -598,25 +617,42 @@
         </div>
     </div>
 
-    <!-- Modal de Edição de Presente -->
+    <!-- Modal de Edição de Presente (Com alteração de Status) -->
     <div class="modal" id="edit-gift-modal">
         <div class="modal-content">
             <span class="modal-close" id="edit-modal-close">&times;</span>
             <h3 style="color: var(--brown); margin-bottom: 20px; font-size: 1.4rem;">Editar Presente</h3>
             <form id="edit-gift-form">
                 <input type="hidden" id="edit-gift-id">
+                
                 <div class="input-group">
                     <label for="edit-gift-title">Nome do Presente *</label>
                     <input type="text" id="edit-gift-title" class="input-control" required>
                 </div>
+                
                 <div class="input-group">
                     <label for="edit-gift-icon">Ícone (Emoji)</label>
                     <input type="text" id="edit-gift-icon" class="input-control">
                 </div>
+                
                 <div class="input-group">
                     <label for="edit-gift-link">Link da Loja</label>
                     <input type="url" id="edit-gift-link" class="input-control">
                 </div>
+
+                <div class="input-group">
+                    <label for="edit-gift-status">Disponibilidade *</label>
+                    <select id="edit-gift-status" class="input-control">
+                        <option value="true">Disponível</option>
+                        <option value="false">Indisponível (Reservado)</option>
+                    </select>
+                </div>
+
+                <div class="input-group" id="edit-chosen-group" style="display: none;">
+                    <label for="edit-chosen-by">Reservado por (Nome / Detalhe)</label>
+                    <input type="text" id="edit-chosen-by" class="input-control" placeholder="Ex: Avisou no WhatsApp">
+                </div>
+
                 <button type="submit" id="update-gift-btn" class="btn">Atualizar Item</button>
             </form>
         </div>
@@ -659,6 +695,8 @@
         const editModalClose = document.getElementById('edit-modal-close');
         const editGiftForm = document.getElementById('edit-gift-form');
         const updateGiftBtn = document.getElementById('update-gift-btn');
+        const editStatusSelect = document.getElementById('edit-gift-status');
+        const editChosenGroup = document.getElementById('edit-chosen-group');
 
         let rsvpDataCache = [];
         let giftsCache = {};
@@ -685,6 +723,15 @@
         logoutBtn.addEventListener('click', () => {
             sessionStorage.removeItem('isLoggedIn');
             location.reload();
+        });
+
+        // Alternar exibição do campo "Reservado por" no Modal de Edição
+        editStatusSelect.addEventListener('change', (e) => {
+            if (e.target.value === "false") {
+                editChosenGroup.style.display = 'block';
+            } else {
+                editChosenGroup.style.display = 'none';
+            }
         });
 
         addGiftForm.addEventListener('submit', async (e) => {
@@ -740,6 +787,12 @@
             document.getElementById('edit-gift-title').value = gift.title || '';
             document.getElementById('edit-gift-icon').value = gift.icon || '';
             document.getElementById('edit-gift-link').value = gift.link || '';
+            
+            const isAvailable = gift.disponivel !== false && !gift.chosenBy;
+            editStatusSelect.value = isAvailable ? "true" : "false";
+            document.getElementById('edit-chosen-by').value = gift.chosenBy || '';
+
+            editChosenGroup.style.display = isAvailable ? 'none' : 'block';
 
             editGiftModal.style.display = 'flex';
         };
@@ -753,6 +806,8 @@
             const title = document.getElementById('edit-gift-title').value.trim();
             let icon = document.getElementById('edit-gift-icon').value.trim();
             const link = document.getElementById('edit-gift-link').value.trim();
+            const isAvailable = editStatusSelect.value === "true";
+            const chosenByInput = document.getElementById('edit-chosen-by').value.trim();
 
             if (!icon) {
                 icon = "🎁";
@@ -767,7 +822,9 @@
                     await updateDoc(giftRef, {
                         title: title,
                         icon: icon,
-                        link: link || ""
+                        link: link || "",
+                        disponivel: isAvailable,
+                        chosenBy: isAvailable ? null : (chosenByInput || "Reservado pelo Admin")
                     });
 
                     editGiftModal.style.display = 'none';
@@ -828,7 +885,17 @@
             });
         });
 
-        // Função para Renderizar Tabela de RSVP com Filtro
+        // Função para Limpar e Formatar Número do WhatsApp
+        function formatPhoneForWhatsApp(phone) {
+            if (!phone) return '';
+            let cleaned = phone.replace(/\D/g, '');
+            if (cleaned.length === 10 || cleaned.length === 11) {
+                cleaned = '55' + cleaned;
+            }
+            return cleaned;
+        }
+
+        // Função para Renderizar Tabela de RSVP com Filtro e Botão WhatsApp
         function renderRsvpTable(dataList) {
             adminRsvpTable.innerHTML = '';
             if (dataList.length === 0) {
@@ -837,10 +904,24 @@
             }
 
             dataList.forEach((rsvp) => {
+                const rawPhone = rsvp.telefone || '';
+                const cleanPhone = formatPhoneForWhatsApp(rawPhone);
+                
+                let phoneHTML = '-';
+                if (cleanPhone) {
+                    const waMessage = encodeURIComponent(`Olá ${rsvp.nome || ''}! Tudo bem? Vi sua confirmação de presença no nosso site de casamento! 🤍`);
+                    phoneHTML = `
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span>${rawPhone}</span>
+                            <a href="https://wa.me/${cleanPhone}?text=${waMessage}" target="_blank" class="btn-whatsapp">📱 WhatsApp</a>
+                        </div>
+                    `;
+                }
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td data-label="Nome"><strong>${rsvp.nome || 'Convidado'}</strong></td>
-                    <td data-label="Telefone">${rsvp.telefone || '-'}</td>
+                    <td data-label="Telefone">${phoneHTML}</td>
                     <td data-label="Cidade">${rsvp.cidade || '-'}</td>
                     <td data-label="Data">${rsvp.data ? new Date(rsvp.data.seconds * 1000).toLocaleDateString('pt-BR') : '-'}</td>
                 `;
