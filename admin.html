@@ -566,9 +566,19 @@
             </form>
         </div>
 
-        <!-- Seção: Monitorar Lista de Presentes -->
+        <!-- Seção: Monitorar Lista de Presentes com Filtros -->
         <div class="admin-section">
-            <h3>Lista de Presentes</h3>
+            <div class="admin-section-header">
+                <h3>Lista de Presentes</h3>
+                <div class="filter-group">
+                    <input type="text" id="filter-gift-name" class="input-control" placeholder="🔍 Filtrar por presente..." style="padding: 10px 14px; font-size: 0.9rem; min-width: 180px;">
+                    <select id="filter-gift-status" class="input-control" style="padding: 10px 14px; font-size: 0.9rem; min-width: 160px;">
+                        <option value="all">Todos os Status</option>
+                        <option value="available">Apenas Disponíveis</option>
+                        <option value="chosen">Apenas Indisponíveis</option>
+                    </select>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="responsive-card-table">
                     <thead>
@@ -672,383 +682,421 @@
 
     <!-- SDK do Firebase (Versão Modular v12) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
-            authDomain: "casamento-felipe-enayra.firebaseapp.com",
-            projectId: "casamento-felipe-enayra",
-            storageBucket: "casamento-felipe-enayra.firebasestorage.app",
-            messagingSenderId: "24443483842",
-            appId: "1:24443483842:web:bc875b5dd017792458ed5b"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
+        authDomain: "casamento-felipe-enayra.firebaseapp.com",
+        projectId: "casamento-felipe-enayra",
+        storageBucket: "casamento-felipe-enayra.firebasestorage.app",
+        messagingSenderId: "24443483842",
+        appId: "1:24443483842:web:bc875b5dd017792458ed5b"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        const ADMIN_USER = "admin";
-        const ADMIN_PASS = "casamento2026";
+    const ADMIN_USER = "admin";
+    const ADMIN_PASS = "casamento2026";
 
-        const loginScreen = document.getElementById('login-screen');
-        const adminPanel = document.getElementById('admin-panel');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const logoutBtn = document.getElementById('logout-btn');
-        
-        const addGiftForm = document.getElementById('add-gift-form');
-        const saveGiftBtn = document.getElementById('save-gift-btn');
-        const adminGiftsTable = document.getElementById('admin-gifts-table');
-        const adminRsvpTable = document.getElementById('admin-rsvp-table');
-        const filterNameInput = document.getElementById('filter-name');
-        const filterCityInput = document.getElementById('filter-city');
-        const adminMessagesContainer = document.getElementById('admin-messages-container');
-        const downloadMessagesBtn = document.getElementById('download-messages-btn');
+    const loginScreen = document.getElementById('login-screen');
+    const adminPanel = document.getElementById('admin-panel');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    const logoutBtn = document.getElementById('logout-btn');
+    
+    const addGiftForm = document.getElementById('add-gift-form');
+    const saveGiftBtn = document.getElementById('save-gift-btn');
+    const adminGiftsTable = document.getElementById('admin-gifts-table');
+    const adminRsvpTable = document.getElementById('admin-rsvp-table');
+    const filterNameInput = document.getElementById('filter-name');
+    const filterCityInput = document.getElementById('filter-city');
+    const adminMessagesContainer = document.getElementById('admin-messages-container');
+    const downloadMessagesBtn = document.getElementById('download-messages-btn');
 
-        const editGiftModal = document.getElementById('edit-gift-modal');
-        const editModalClose = document.getElementById('edit-modal-close');
-        const editGiftForm = document.getElementById('edit-gift-form');
-        const updateGiftBtn = document.getElementById('update-gift-btn');
-        const editStatusSelect = document.getElementById('edit-gift-status');
-        const editChosenGroup = document.getElementById('edit-chosen-group');
+    const editGiftModal = document.getElementById('edit-gift-modal');
+    const editModalClose = document.getElementById('edit-modal-close');
+    const editGiftForm = document.getElementById('edit-gift-form');
+    const updateGiftBtn = document.getElementById('update-gift-btn');
+    const editStatusSelect = document.getElementById('edit-gift-status');
+    const editChosenGroup = document.getElementById('edit-chosen-group');
 
-        let rsvpDataCache = [];
-        let giftsCache = {};
-        let messagesDataCache = [];
+    const filterGiftNameInput = document.getElementById('filter-gift-name');
+    const filterGiftStatusSelect = document.getElementById('filter-gift-status');
 
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value.trim();
+    let rsvpDataCache = [];
+    let giftsCache = {};
+    let messagesDataCache = [];
 
-            if (user === ADMIN_USER && pass === ADMIN_PASS) {
-                loginScreen.style.display = 'none';
-                adminPanel.style.display = 'block';
-                sessionStorage.setItem('isLoggedIn', 'true');
-            } else {
-                loginError.style.display = 'block';
-            }
-        });
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const user = document.getElementById('username').value.trim();
+        const pass = document.getElementById('password').value.trim();
 
-        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        if (user === ADMIN_USER && pass === ADMIN_PASS) {
             loginScreen.style.display = 'none';
             adminPanel.style.display = 'block';
+            sessionStorage.setItem('isLoggedIn', 'true');
+        } else {
+            loginError.style.display = 'block';
+        }
+    });
+
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        loginScreen.style.display = 'none';
+        adminPanel.style.display = 'block';
+    }
+
+    logoutBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('isLoggedIn');
+        location.reload();
+    });
+
+    editStatusSelect.addEventListener('change', (e) => {
+        if (e.target.value === "false") {
+            editChosenGroup.style.display = 'block';
+        } else {
+            editChosenGroup.style.display = 'none';
+        }
+    });
+
+    addGiftForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('gift-title').value.trim();
+        let icon = document.getElementById('gift-icon').value.trim();
+        const link = document.getElementById('gift-link').value.trim();
+
+        if (!icon) {
+            icon = "🎁";
         }
 
-        logoutBtn.addEventListener('click', () => {
-            sessionStorage.removeItem('isLoggedIn');
-            location.reload();
-        });
+        if (title) {
+            try {
+                saveGiftBtn.innerText = "Salvando...";
+                saveGiftBtn.disabled = true;
 
-        editStatusSelect.addEventListener('change', (e) => {
-            if (e.target.value === "false") {
-                editChosenGroup.style.display = 'block';
-            } else {
-                editChosenGroup.style.display = 'none';
-            }
-        });
-
-        addGiftForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('gift-title').value.trim();
-            let icon = document.getElementById('gift-icon').value.trim();
-            const link = document.getElementById('gift-link').value.trim();
-
-            if (!icon) {
-                icon = "🎁";
-            }
-
-            if (title) {
-                try {
-                    saveGiftBtn.innerText = "Salvando...";
-                    saveGiftBtn.disabled = true;
-
-                    await addDoc(collection(db, "presentes"), {
-                        title: title,
-                        icon: icon,
-                        link: link || "",
-                        chosenBy: null,
-                        disponivel: true
-                    });
-
-                    addGiftForm.reset();
-                    alert("Presente adicionado com sucesso!");
-                } catch (error) {
-                    console.error("Erro ao adicionar presente: ", error);
-                    alert("Erro ao cadastrar o presente. Tente novamente.");
-                } finally {
-                    saveGiftBtn.innerText = "Salvar Item";
-                    saveGiftBtn.disabled = false;
-                }
-            }
-        });
-
-        window.deleteGift = async function(id) {
-            if (confirm("Tem certeza que deseja excluir este item da lista?")) {
-                try {
-                    await deleteDoc(doc(db, "presentes", id));
-                } catch (error) {
-                    console.error("Erro ao excluir presente: ", error);
-                }
-            }
-        };
-
-        window.deleteRsvp = async function(id) {
-            if (confirm("Tem certeza que deseja excluir este convidado da lista de RSVP?")) {
-                try {
-                    await deleteDoc(doc(db, "rsvp", id));
-                } catch (error) {
-                    console.error("Erro ao excluir RSVP: ", error);
-                }
-            }
-        };
-
-        window.openEditGiftModal = function(id) {
-            const gift = giftsCache[id];
-            if (!gift) return;
-
-            document.getElementById('edit-gift-id').value = id;
-            document.getElementById('edit-gift-title').value = gift.title || '';
-            document.getElementById('edit-gift-icon').value = gift.icon || '';
-            document.getElementById('edit-gift-link').value = gift.link || '';
-            
-            const isAvailable = gift.disponivel !== false && !gift.chosenBy;
-            editStatusSelect.value = isAvailable ? "true" : "false";
-            document.getElementById('edit-chosen-by').value = gift.chosenBy || '';
-
-            editChosenGroup.style.display = isAvailable ? 'none' : 'block';
-
-            editGiftModal.style.display = 'flex';
-        };
-
-        editModalClose.addEventListener('click', () => { editGiftModal.style.display = 'none'; });
-        window.addEventListener('click', (e) => { if (e.target === editGiftModal) editGiftModal.style.display = 'none'; });
-
-        editGiftForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('edit-gift-id').value;
-            const title = document.getElementById('edit-gift-title').value.trim();
-            let icon = document.getElementById('edit-gift-icon').value.trim();
-            const link = document.getElementById('edit-gift-link').value.trim();
-            const isAvailable = editStatusSelect.value === "true";
-            const chosenByInput = document.getElementById('edit-chosen-by').value.trim();
-
-            if (!icon) {
-                icon = "🎁";
-            }
-
-            if (id && title) {
-                try {
-                    updateGiftBtn.innerText = "Atualizando...";
-                    updateGiftBtn.disabled = true;
-
-                    const giftRef = doc(db, "presentes", id);
-                    await updateDoc(giftRef, {
-                        title: title,
-                        icon: icon,
-                        link: link || "",
-                        disponivel: isAvailable,
-                        chosenBy: isAvailable ? null : (chosenByInput || "Reservado pelo Admin")
-                    });
-
-                    editGiftModal.style.display = 'none';
-                    alert("Presente atualizado com sucesso!");
-                } catch (error) {
-                    console.error("Erro ao atualizar presente: ", error);
-                    alert("Erro ao atualizar o presente. Tente novamente.");
-                } finally {
-                    updateGiftBtn.innerText = "Atualizar Item";
-                    updateGiftBtn.disabled = false;
-                }
-            }
-        });
-
-        window.deleteMessage = async function(id) {
-            if (confirm("Tem certeza que deseja excluir este recado?")) {
-                try {
-                    await deleteDoc(doc(db, "recados", id));
-                } catch (error) {
-                    console.error("Erro ao excluir recado: ", error);
-                }
-            }
-        };
-
-        // Carregar Presentes em Tempo Real
-        onSnapshot(collection(db, "presentes"), (snapshot) => {
-            adminGiftsTable.innerHTML = '';
-            giftsCache = {};
-
-            if (snapshot.empty) {
-                adminGiftsTable.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Nenhum presente cadastrado.</td></tr>';
-                return;
-            }
-
-            snapshot.forEach((docSnapshot) => {
-                const gift = docSnapshot.data();
-                const id = docSnapshot.id;
-                giftsCache[id] = gift;
-
-                const iconDisplay = `<span style="font-size: 1.5rem;">${gift.icon || '🎁'}</span>`;
-                const linkHTML = gift.link ? `<a href="${gift.link}" target="_blank" class="link-btn">Ver Loja 🔗</a>` : '<span style="color:#aaa;">-</span>';
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td data-label="Ícone">${iconDisplay}</td>
-                    <td data-label="Presente"><strong>${gift.title}</strong></td>
-                    <td data-label="Link da Loja">${linkHTML}</td>
-                    <td data-label="Status"><span class="badge-status ${gift.chosenBy ? 'badge-chosen' : 'badge-available'}">${gift.chosenBy ? 'Indisponível' : 'Disponível'}</span></td>
-                    <td data-label="Escolhido por">${gift.chosenBy ? gift.chosenBy : '<em style="color:#888;">Disponível</em>'}</td>
-                    <td data-label="Ações">
-                        <div class="action-buttons-group">
-                            <button class="btn-edit" onclick="openEditGiftModal('${id}')">Editar</button>
-                            <button class="btn-danger" onclick="deleteGift('${id}')">Excluir</button>
-                        </div>
-                    </td>
-                `;
-                adminGiftsTable.appendChild(tr);
-            });
-        });
-
-        function formatPhoneForWhatsApp(phone) {
-            if (!phone) return '';
-            let cleaned = phone.replace(/\D/g, '');
-            if (cleaned.length === 10 || cleaned.length === 11) {
-                cleaned = '55' + cleaned;
-            }
-            return cleaned;
-        }
-
-        // Renderizar Tabela de RSVP com Filtro e Botões (WhatsApp e Excluir)
-        function renderRsvpTable(dataList) {
-            adminRsvpTable.innerHTML = '';
-            if (dataList.length === 0) {
-                adminRsvpTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhuma confirmação encontrada.</td></tr>';
-                return;
-            }
-
-            dataList.forEach((item) => {
-                const rsvp = item.data;
-                const id = item.id;
-                const rawPhone = rsvp.telefone || '';
-                const cleanPhone = formatPhoneForWhatsApp(rawPhone);
-                
-                let phoneHTML = '-';
-                if (cleanPhone) {
-                    const waMessage = encodeURIComponent(`Olá ${rsvp.nome || ''}! Tudo bem? Vi sua confirmação de presença no nosso site de casamento! 🤍`);
-                    phoneHTML = `
-                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <span>${rawPhone}</span>
-                            <a href="https://wa.me/${cleanPhone}?text=${waMessage}" target="_blank" class="btn-whatsapp">📱 WhatsApp</a>
-                        </div>
-                    `;
-                }
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td data-label="Nome"><strong>${rsvp.nome || 'Convidado'}</strong></td>
-                    <td data-label="Telefone">${phoneHTML}</td>
-                    <td data-label="Cidade">${rsvp.cidade || '-'}</td>
-                    <td data-label="Data">${rsvp.data ? new Date(rsvp.data.seconds * 1000).toLocaleDateString('pt-BR') : '-'}</td>
-                    <td data-label="Ações">
-                        <button class="btn-danger" onclick="deleteRsvp('${id}')">Excluir</button>
-                    </td>
-                `;
-                adminRsvpTable.appendChild(tr);
-            });
-        }
-
-        function filterAndRenderRsvp() {
-            const nameVal = filterNameInput.value.toLowerCase().trim();
-            const cityVal = filterCityInput.value.toLowerCase().trim();
-
-            const filtered = rsvpDataCache.filter(item => {
-                const nomeMatch = (item.data.nome || '').toLowerCase().includes(nameVal);
-                const cidadeMatch = (item.data.cidade || '').toLowerCase().includes(cityVal);
-                return nomeMatch && cidadeMatch;
-            });
-
-            renderRsvpTable(filtered);
-        }
-
-        // Carregar RSVP em Tempo Real
-        onSnapshot(collection(db, "rsvp"), (snapshot) => {
-            rsvpDataCache = [];
-            snapshot.forEach((docSnapshot) => {
-                rsvpDataCache.push({
-                    id: docSnapshot.id,
-                    data: docSnapshot.data()
-                });
-            });
-            filterAndRenderRsvp();
-        });
-
-        filterNameInput.addEventListener('input', filterAndRenderRsvp);
-        filterCityInput.addEventListener('input', filterAndRenderRsvp);
-
-        // Carregar Recados e Manter no Cache para Download
-        onSnapshot(collection(db, "recados"), (snapshot) => {
-            adminMessagesContainer.innerHTML = '';
-            messagesDataCache = [];
-
-            if (snapshot.empty) {
-                adminMessagesContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 20px;">Nenhum recado deixado ainda.</p>';
-                return;
-            }
-
-            snapshot.forEach((docSnapshot) => {
-                const msg = docSnapshot.data();
-                const id = docSnapshot.id;
-                const formattedDate = msg.data ? new Date(msg.data.seconds * 1000).toLocaleDateString('pt-BR') : '-';
-
-                messagesDataCache.push({
-                    nome: msg.nome || 'Anônimo',
-                    mensagem: msg.mensagem || '',
-                    data: formattedDate
+                await addDoc(collection(db, "presentes"), {
+                    title: title,
+                    icon: icon,
+                    link: link || "",
+                    chosenBy: null,
+                    disponivel: true
                 });
 
-                const card = document.createElement('div');
-                card.className = 'message-card';
-                card.innerHTML = `
-                    <div>
-                        <div class="message-header">
-                            <span class="message-author">${msg.nome || 'Anônimo'}</span>
-                            <span class="message-date">${formattedDate}</span>
-                        </div>
-                        <p class="message-body">"${msg.mensagem || ''}"</p>
-                    </div>
-                    <div class="message-actions">
-                        <button class="btn-danger" onclick="deleteMessage('${id}')">Excluir</button>
-                    </div>
-                `;
-                adminMessagesContainer.appendChild(card);
-            });
-        });
+                addGiftForm.reset();
+                alert("Presente adicionado com sucesso!");
+            } catch (error) {
+                console.error("Erro ao adicionar presente: ", error);
+                alert("Erro ao cadastrar o presente. Tente novamente.");
+            } finally {
+                saveGiftBtn.innerText = "Salvar Item";
+                saveGiftBtn.disabled = false;
+            }
+        }
+    });
 
-        // Função de Download dos Recados em Arquivo CSV
-        downloadMessagesBtn.addEventListener('click', () => {
-            if (messagesDataCache.length === 0) {
-                alert("Não há recados para baixar no momento.");
-                return;
+    window.deleteGift = async function(id) {
+        if (confirm("Tem certeza que deseja excluir este item da lista?")) {
+            try {
+                await deleteDoc(doc(db, "presentes", id));
+            } catch (error) {
+                console.error("Erro ao excluir presente: ", error);
+            }
+        }
+    };
+
+    window.deleteRsvp = async function(id) {
+        if (confirm("Tem certeza que deseja excluir este convidado da lista de RSVP?")) {
+            try {
+                await deleteDoc(doc(db, "rsvp", id));
+            } catch (error) {
+                console.error("Erro ao excluir RSVP: ", error);
+            }
+        }
+    };
+
+    window.openEditGiftModal = function(id) {
+        const gift = giftsCache[id];
+        if (!gift) return;
+
+        document.getElementById('edit-gift-id').value = id;
+        document.getElementById('edit-gift-title').value = gift.title || '';
+        document.getElementById('edit-gift-icon').value = gift.icon || '';
+        document.getElementById('edit-gift-link').value = gift.link || '';
+        
+        const isAvailable = gift.disponivel !== false && !gift.chosenBy;
+        editStatusSelect.value = isAvailable ? "true" : "false";
+        document.getElementById('edit-chosen-by').value = gift.chosenBy || '';
+
+        editChosenGroup.style.display = isAvailable ? 'none' : 'block';
+
+        editGiftModal.style.display = 'flex';
+    };
+
+    editModalClose.addEventListener('click', () => { editGiftModal.style.display = 'none'; });
+    window.addEventListener('click', (e) => { if (e.target === editGiftModal) editGiftModal.style.display = 'none'; });
+
+    editGiftForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-gift-id').value;
+        const title = document.getElementById('edit-gift-title').value.trim();
+        let icon = document.getElementById('edit-gift-icon').value.trim();
+        const link = document.getElementById('edit-gift-link').value.trim();
+        const isAvailable = editStatusSelect.value === "true";
+        const chosenByInput = document.getElementById('edit-chosen-by').value.trim();
+
+        if (!icon) {
+            icon = "🎁";
+        }
+
+        if (id && title) {
+            try {
+                updateGiftBtn.innerText = "Atualizando...";
+                updateGiftBtn.disabled = true;
+
+                const giftRef = doc(db, "presentes", id);
+                await updateDoc(giftRef, {
+                    title: title,
+                    icon: icon,
+                    link: link || "",
+                    disponivel: isAvailable,
+                    chosenBy: isAvailable ? null : (chosenByInput || "Reservado pelo Admin")
+                });
+
+                editGiftModal.style.display = 'none';
+                alert("Presente atualizado com sucesso!");
+            } catch (error) {
+                console.error("Erro ao atualizar presente: ", error);
+                alert("Erro ao atualizar o presente. Tente novamente.");
+            } finally {
+                updateGiftBtn.innerText = "Atualizar Item";
+                updateGiftBtn.disabled = false;
+            }
+        }
+    });
+
+    window.deleteMessage = async function(id) {
+        if (confirm("Tem certeza que deseja excluir este recado?")) {
+            try {
+                await deleteDoc(doc(db, "recados", id));
+            } catch (error) {
+                console.error("Erro ao excluir recado: ", error);
+            }
+        }
+    };
+
+    // Renderiza a tabela de presentes com suporte a filtros
+    function renderGiftsTable(giftsList) {
+        adminGiftsTable.innerHTML = '';
+
+        if (giftsList.length === 0) {
+            adminGiftsTable.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Nenhum presente encontrado.</td></tr>';
+            return;
+        }
+
+        giftsList.forEach(({ id, gift }) => {
+            const iconDisplay = `<span style="font-size: 1.5rem;">${gift.icon || '🎁'}</span>`;
+            const linkHTML = gift.link ? `<a href="${gift.link}" target="_blank" class="link-btn">Ver Loja 🔗</a>` : '<span style="color:#aaa;">-</span>';
+            const isChosen = !!gift.chosenBy || gift.disponivel === false;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td data-label="Ícone">${iconDisplay}</td>
+                <td data-label="Presente"><strong>${gift.title}</strong></td>
+                <td data-label="Link da Loja">${linkHTML}</td>
+                <td data-label="Status"><span class="badge-status ${isChosen ? 'badge-chosen' : 'badge-available'}">${isChosen ? 'Indisponível' : 'Disponível'}</span></td>
+                <td data-label="Escolhido por">${gift.chosenBy ? gift.chosenBy : '<em style="color:#888;">Disponível</em>'}</td>
+                <td data-label="Ações">
+                    <div class="action-buttons-group">
+                        <button class="btn-edit" onclick="openEditGiftModal('${id}')">Editar</button>
+                        <button class="btn-danger" onclick="deleteGift('${id}')">Excluir</button>
+                    </div>
+                </td>
+            `;
+            adminGiftsTable.appendChild(tr);
+        });
+    }
+
+    // Filtra os presentes armazenados em cache por nome e status
+    function filterAndRenderGifts() {
+        const nameVal = filterGiftNameInput ? filterGiftNameInput.value.toLowerCase().trim() : '';
+        const statusVal = filterGiftStatusSelect ? filterGiftStatusSelect.value : 'all';
+
+        const filtered = Object.keys(giftsCache).map(id => ({
+            id,
+            gift: giftsCache[id]
+        })).filter(({ gift }) => {
+            const titleMatch = (gift.title || '').toLowerCase().includes(nameVal);
+            const isChosen = !!gift.chosenBy || gift.disponivel === false;
+
+            let statusMatch = true;
+            if (statusVal === 'available') {
+                statusMatch = !isChosen;
+            } else if (statusVal === 'chosen') {
+                statusMatch = isChosen;
             }
 
-            let csvContent = "\uFEFFData;Nome;Mensagem\n";
+            return titleMatch && statusMatch;
+        });
 
-            messagesDataCache.forEach(row => {
-                const cleanNome = `"${row.nome.replace(/"/g, '""')}"`;
-                const cleanMsg = `"${row.mensagem.replace(/"/g, '""')}"`;
-                csvContent += `${row.data};${cleanNome};${cleanMsg}\n`;
+        renderGiftsTable(filtered);
+    }
+
+    if (filterGiftNameInput) filterGiftNameInput.addEventListener('input', filterAndRenderGifts);
+    if (filterGiftStatusSelect) filterGiftStatusSelect.addEventListener('change', filterAndRenderGifts);
+
+    // Carregar Presentes em Tempo Real do Firestore
+    onSnapshot(collection(db, "presentes"), (snapshot) => {
+        giftsCache = {};
+
+        snapshot.forEach((docSnapshot) => {
+            giftsCache[docSnapshot.id] = docSnapshot.data();
+        });
+
+        filterAndRenderGifts();
+    });
+
+    function formatPhoneForWhatsApp(phone) {
+        if (!phone) return '';
+        let cleaned = phone.replace(/\D/g, '');
+        if (cleaned.length === 10 || cleaned.length === 11) {
+            cleaned = '55' + cleaned;
+        }
+        return cleaned;
+    }
+
+    // Renderizar Tabela de RSVP com Filtro e Botões (WhatsApp e Excluir)
+    function renderRsvpTable(dataList) {
+        adminRsvpTable.innerHTML = '';
+        if (dataList.length === 0) {
+            adminRsvpTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Nenhuma confirmação encontrada.</td></tr>';
+            return;
+        }
+
+        dataList.forEach((item) => {
+            const rsvp = item.data;
+            const id = item.id;
+            const rawPhone = rsvp.telefone || '';
+            const cleanPhone = formatPhoneForWhatsApp(rawPhone);
+            
+            let phoneHTML = '-';
+            if (cleanPhone) {
+                const waMessage = encodeURIComponent(`Olá ${rsvp.nome || ''}! Tudo bem? Vi sua confirmação de presença no nosso site de casamento! 🤍`);
+                phoneHTML = `
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span>${rawPhone}</span>
+                        <a href="https://wa.me/${cleanPhone}?text=${waMessage}" target="_blank" class="btn-whatsapp">📱 WhatsApp</a>
+                    </div>
+                `;
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td data-label="Nome"><strong>${rsvp.nome || 'Convidado'}</strong></td>
+                <td data-label="Telefone">${phoneHTML}</td>
+                <td data-label="Cidade">${rsvp.cidade || '-'}</td>
+                <td data-label="Data">${rsvp.data ? new Date(rsvp.data.seconds * 1000).toLocaleDateString('pt-BR') : '-'}</td>
+                <td data-label="Ações">
+                    <button class="btn-danger" onclick="deleteRsvp('${id}')">Excluir</button>
+                </td>
+            `;
+            adminRsvpTable.appendChild(tr);
+        });
+    }
+
+    function filterAndRenderRsvp() {
+        const nameVal = filterNameInput.value.toLowerCase().trim();
+        const cityVal = filterCityInput.value.toLowerCase().trim();
+
+        const filtered = rsvpDataCache.filter(item => {
+            const nomeMatch = (item.data.nome || '').toLowerCase().includes(nameVal);
+            const cidadeMatch = (item.data.cidade || '').toLowerCase().includes(cityVal);
+            return nomeMatch && cidadeMatch;
+        });
+
+        renderRsvpTable(filtered);
+    }
+
+    // Carregar RSVP em Tempo Real
+    onSnapshot(collection(db, "rsvp"), (snapshot) => {
+        rsvpDataCache = [];
+        snapshot.forEach((docSnapshot) => {
+            rsvpDataCache.push({
+                id: docSnapshot.id,
+                data: docSnapshot.data()
+            });
+        });
+        filterAndRenderRsvp();
+    });
+
+    filterNameInput.addEventListener('input', filterAndRenderRsvp);
+    filterCityInput.addEventListener('input', filterAndRenderRsvp);
+
+    // Carregar Recados e Manter no Cache para Download
+    onSnapshot(collection(db, "recados"), (snapshot) => {
+        adminMessagesContainer.innerHTML = '';
+        messagesDataCache = [];
+
+        if (snapshot.empty) {
+            adminMessagesContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 20px;">Nenhum recado deixado ainda.</p>';
+            return;
+        }
+
+        snapshot.forEach((docSnapshot) => {
+            const msg = docSnapshot.data();
+            const id = docSnapshot.id;
+            const formattedDate = msg.data ? new Date(msg.data.seconds * 1000).toLocaleDateString('pt-BR') : '-';
+
+            messagesDataCache.push({
+                nome: msg.nome || 'Anônimo',
+                mensagem: msg.mensagem || '',
+                data: formattedDate
             });
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', `Recados_Noivos_Felipe_Enayra.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const card = document.createElement('div');
+            card.className = 'message-card';
+            card.innerHTML = `
+                <div>
+                    <div class="message-header">
+                        <span class="message-author">${msg.nome || 'Anônimo'}</span>
+                        <span class="message-date">${formattedDate}</span>
+                    </div>
+                    <p class="message-body">"${msg.mensagem || ''}"</p>
+                </div>
+                <div class="message-actions">
+                    <button class="btn-danger" onclick="deleteMessage('${id}')">Excluir</button>
+                </div>
+            `;
+            adminMessagesContainer.appendChild(card);
         });
-    </script>
+    });
+
+    // Função de Download dos Recados em Arquivo CSV
+    downloadMessagesBtn.addEventListener('click', () => {
+        if (messagesDataCache.length === 0) {
+            alert("Não há recados para baixar no momento.");
+            return;
+        }
+
+        let csvContent = "\uFEFFData;Nome;Mensagem\n";
+
+        messagesDataCache.forEach(row => {
+            const cleanNome = `"${row.nome.replace(/"/g, '""')}"`;
+            const cleanMsg = `"${row.mensagem.replace(/"/g, '""')}"`;
+            csvContent += `${row.data};${cleanNome};${cleanMsg}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `Recados_Noivos_Felipe_Enayra.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>
 </body>
 </html>
