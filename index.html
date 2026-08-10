@@ -469,6 +469,29 @@
             .lightbox-caption { font-size: 1.7rem; margin-top: 12px; }
         }
 
+        /* Estilo do Contador de Visitantes */
+        .visitor-counter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: var(--white);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .visitor-counter strong {
+            color: var(--gold);
+            font-size: 1rem;
+            margin: 0 4px;
+        }
         .details-card {
             background: var(--white);
             padding: 50px;
@@ -943,13 +966,18 @@
             <p style="max-width: 600px; margin: 0 auto; font-size: 1.1rem; font-weight: 300; line-height: 1.6;">
                 O amor nos trouxe até aqui. Agora, esperamos por você.<br>Obrigado por fazer parte do dia mais especial das nossas vidas. 🤍
             </p>
+            
+            <!-- Contador de Visitantes -->
+            <div class="visitor-counter">
+                <span>👀 <strong id="visitor-count">...</strong> visitas ao nosso site</span>
+            </div>
         </div>
     </footer>
 
     <!-- SDK do Firebase (Versão Modular v12) -->
    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, increment, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
@@ -1304,6 +1332,36 @@
             startAudio();
         }
     });
+
+    // Lógica do Contador de Visitantes (Firebase Firestore)
+const visitorCountEl = document.getElementById('visitor-count');
+const counterDocRef = doc(db, "estatisticas", "visitas");
+
+async function registerVisit() {
+    // Registra o incremento apenas 1 vez por sessão de navegação
+    if (!sessionStorage.getItem('has_visited')) {
+        try {
+            await setDoc(counterDocRef, { total: increment(1) }, { merge: true });
+            sessionStorage.setItem('has_visited', 'true');
+        } catch (error) {
+            console.error("Erro ao contabilizar visita:", error);
+        }
+    }
+}
+
+// Escuta a contagem total em tempo real
+onSnapshot(counterDocRef, (docSnapshot) => {
+    if (docSnapshot.exists()) {
+        const totalVisitas = docSnapshot.data().total || 0;
+        if (visitorCountEl) {
+            visitorCountEl.innerText = totalVisitas.toLocaleString('pt-BR');
+        }
+    } else {
+        if (visitorCountEl) visitorCountEl.innerText = '1';
+    }
+});
+
+registerVisit();
 </script>
 </body>
 </html>
