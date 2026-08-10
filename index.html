@@ -282,71 +282,191 @@
             margin-bottom: 15px;
         }
 
+        /* --- GALERIA DE MOMENTOS (Masonry Responsivo) --- */
         .moments-container {
             width: 100%;
             max-width: 1200px;
-            overflow: hidden;
-            position: relative;
-            padding: 20px 0;
+            margin: 0 auto;
+            padding: 10px;
         }
 
         .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 25px;
-            width: 100%;
+            column-count: 4;
+            column-gap: 20px;
         }
 
         .photo-card {
-            background: var(--white);
-            padding: 12px 12px 22px 12px;
-            border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
+            break-inside: avoid;
+            margin-bottom: 20px;
             position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--white);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
         }
 
-        .photo-card:nth-child(4n + 1) { transform: rotate(-2deg); }
-        .photo-card:nth-child(4n + 2) { transform: rotate(1.5deg); }
-        .photo-card:nth-child(4n + 3) { transform: rotate(-1deg); }
-        .photo-card:nth-child(4n + 4) { transform: rotate(2.5deg); }
-
         .photo-card:hover {
-            transform: scale(1.08) rotate(0deg) !important;
-            box-shadow: 0 20px 45px rgba(109, 76, 65, 0.2);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(109, 76, 65, 0.2);
             z-index: 10;
         }
 
         .gallery-img-wrapper {
-            overflow: hidden;
-            border-radius: 2px;
-            height: 250px;
             width: 100%;
-            margin-bottom: 12px;
+            overflow: hidden;
+            display: block;
             background: #eee;
         }
 
         .gallery-img-wrapper img {
             width: 100%;
-            height: 100%;
+            height: auto;
+            display: block;
             object-fit: cover;
             transition: transform 0.6s ease;
         }
 
         .photo-card:hover .gallery-img-wrapper img {
+            transform: scale(1.08);
+        }
+
+        /* Overlay com Legenda sobreposta em Gradiente */
+        .photo-caption-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+            color: var(--white);
+            padding: 25px 15px 15px 15px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .photo-card:hover .photo-caption-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .photo-caption-overlay p {
+            font-family: 'Great Vibes', cursive;
+            font-size: 1.6rem;
+            color: var(--white);
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+       /* --- LIGHTBOX MODAL (Estilo Polaroid com Fundo Blur/Palha) --- */
+        .lightbox-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(245, 245, 220, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 20000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .lightbox-modal.active {
+            display: flex;
+        }
+
+        /* Moldura Polaroid */
+        .polaroid-wrapper {
+            background: var(--white);
+            padding: 16px 16px 24px 16px;
+            border-radius: 8px;
+            box-shadow: 0 20px 50px rgba(62, 39, 35, 0.25), 0 2px 10px rgba(0,0,0,0.08);
+            max-width: 90%;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: rotate(-1deg);
+            transition: transform 0.3s ease;
+        }
+
+        .polaroid-wrapper:hover {
+            transform: rotate(0deg) scale(1.01);
+        }
+
+        .lightbox-content {
+            max-width: 100%;
+            max-height: 65vh;
+            border-radius: 4px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .lightbox-caption {
+            font-family: 'Great Vibes', cursive;
+            color: var(--brown);
+            font-size: 2.2rem;
+            margin-top: 15px;
+            text-align: center;
+            padding: 0 10px;
+            line-height: 1.2;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            color: var(--brown);
+            font-size: 2.5rem;
+            cursor: pointer;
+            z-index: 20001;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            color: var(--gold);
             transform: scale(1.1);
         }
 
-        .photo-caption {
-            font-family: 'Great Vibes', cursive;
-            font-size: 1.6rem;
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--brown);
-            line-height: 1.2;
-            margin: 0;
+            font-size: 2.5rem;
+            cursor: pointer;
+            padding: 12px 18px;
+            user-select: none;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-nav:hover { 
+            color: var(--gold); 
+            background: var(--white);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .lightbox-prev { left: 25px; }
+        .lightbox-next { right: 25px; }
+
+        @media (max-width: 768px) {
+            .polaroid-wrapper { padding: 12px 12px 20px 12px; }
+            .lightbox-content { max-height: 60vh; }
+            .lightbox-nav { font-size: 1.8rem; padding: 8px 14px; }
+            .lightbox-prev { left: 10px; }
+            .lightbox-next { right: 10px; }
+            .lightbox-caption { font-size: 1.7rem; margin-top: 12px; }
         }
 
         .details-card {
@@ -538,6 +658,11 @@
             100% { transform: scale(1); }
         }
 
+        /* Adaptabilidade Responsiva (Mobile e Tablets) */
+        @media (max-width: 992px) {
+            .gallery-grid { column-count: 3; }
+        }
+
         @media (max-width: 768px) {
             .navbar { padding: 1.2rem 1.5rem; }
             .menu-toggle { display: flex; }
@@ -565,11 +690,19 @@
             .hero-countdown { gap: 15px; padding: 15px; max-width: 100%; }
             .hero-countdown-number { font-size: 1.8rem; }
             .section-title h2 { font-size: 2.8rem; }
-            .photo-card { padding: 10px 10px 18px 10px; }
             .details-card, .guestbook-container { padding: 30px 20px; }
             .action-btn, .details-btn { padding: 12px 20px; font-size: 0.75rem; width: 100%; max-width: 300px; }
+
+            /* Ajuste de Galeria no Celular */
+            .gallery-grid { column-count: 2; column-gap: 12px; }
+            .photo-card { margin-bottom: 12px; border-radius: 12px; }
+            .photo-caption-overlay { opacity: 1; transform: translateY(0); padding: 15px 10px 10px 10px; }
+            .photo-caption-overlay p { font-size: 1.2rem; }
+            .lightbox-nav { font-size: 2rem; padding: 10px; }
+            .lightbox-prev { left: 5px; }
+            .lightbox-next { right: 5px; }
         }
-    </style>
+</style>
 </head>
 <body>
 
@@ -645,51 +778,63 @@
     </section>
 
     <section id="momentos" class="screen-section" style="background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(46, 125, 50, 0.05) 100%);">
-        <div class="section-title animate-element">
-            <span class="cursive-text" style="font-size: 3rem;">Nossa história em</span>
-            <h2>Momentos Especiais</h2>
-            <div class="divider"></div>
+    <div class="section-title animate-element">
+        <span class="cursive-text" style="font-size: 3rem;">Nossa história em</span>
+        <h2>Momentos Especiais</h2>
+        <div class="divider"></div>
+    </div>
+    
+    <div class="moments-container">
+        <div class="gallery-grid" id="lightbox-gallery">
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/01.webp" alt="Momento 1" loading="lazy"></div><div class="photo-caption-overlay"><p>Celebrando o amor em boa companhia.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/02.webp" alt="Momento 2" loading="lazy"></div><div class="photo-caption-overlay"><p>Colecionando momentos juntos.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/03.webp" alt="Momento 3" loading="lazy"></div><div class="photo-caption-overlay"><p>Um beijo para lembrar o quanto amo você.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/04.webp" alt="Momento 4" loading="lazy"></div><div class="photo-caption-overlay"><p>Construindo memórias sob a bênção de Jeová.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/05.webp" alt="Momento 5" loading="lazy"></div><div class="photo-caption-overlay"><p>Nosso jeito de estar juntos.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/06.webp" alt="Momento 6" loading="lazy"></div><div class="photo-caption-overlay"><p>Sorrisos sinceros na sua melhor companhia.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/07.webp" alt="Momento 7" loading="lazy"></div><div class="photo-caption-overlay"><p>Nosso abraço, meu porto seguro.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/08.webp" alt="Momento 8" loading="lazy"></div><div class="photo-caption-overlay"><p>Onde quer que estejamos, juntos é o nosso lugar.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/09.webp" alt="Momento 9" loading="lazy"></div><div class="photo-caption-overlay"><p>A vida fica mais leve e alegre ao seu lado.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/10.webp" alt="Momento 10" loading="lazy"></div><div class="photo-caption-overlay"><p>Sempre prontos para viver novos momentos juntos.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/10c.webp" alt="Momento 10c" loading="lazy"></div><div class="photo-caption-overlay"><p>Parceiros de todos os momentos.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/10d.webp" alt="Momento 10d" loading="lazy"></div><div class="photo-caption-overlay"><p>Sorrisos que acalmam o coração.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/10e.webp" alt="Momento 10e" loading="lazy"></div><div class="photo-caption-overlay"><p>Cuidando um do outro com carinho.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/11.webp" alt="Momento 11" loading="lazy"></div><div class="photo-caption-overlay"><p>Mais uma aventura para a nossa história.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/12.webp" alt="Momento 12" loading="lazy"></div><div class="photo-caption-overlay"><p>Alguns lugares ficam ainda mais especiais com você.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/13.webp" alt="Momento 13" loading="lazy"></div><div class="photo-caption-overlay"><p>Admirando a vista e agradecendo por ter você.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/14.webp" alt="Momento 14" loading="lazy"></div><div class="photo-caption-overlay"><p>Vivendo momentos que queremos guardar para sempre.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/15.webp" alt="Momento 15" loading="lazy"></div><div class="photo-caption-overlay"><p>Colecionando destinos e sorrisos.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/16.webp" alt="Momento 16" loading="lazy"></div><div class="photo-caption-overlay"><p>Juntos nos momentos mais especiais da nossa vida.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/17.webp" alt="Momento 17" loading="lazy"></div><div class="photo-caption-overlay"><p>A felicidade de estar ao seu lado.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/18.webp" alt="Momento 18" loading="lazy"></div><div class="photo-caption-overlay"><p>Registros de uma caminhada especial.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/19.webp" alt="Momento 19" loading="lazy"></div><div class="photo-caption-overlay"><p>Meu lugar favorito é ao seu lado.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/20.webp" alt="Momento 20" loading="lazy"></div><div class="photo-caption-overlay"><p>Histórias que guardaremos com carinho.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/21.webp" alt="Momento 21" loading="lazy"></div><div class="photo-caption-overlay"><p>Caminhando juntos rumo ao futuro.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/22.webp" alt="Momento 22" loading="lazy"></div><div class="photo-caption-overlay"><p>Complicidade em cada detalhe.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/23.webp" alt="Momento 23" loading="lazy"></div><div class="photo-caption-overlay"><p>Mais um dia para guardar na memória.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/24.webp" alt="Momento 24" loading="lazy"></div><div class="photo-caption-overlay"><p>Celebrando cada vitória juntos.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/25.webp" alt="Momento 25" loading="lazy"></div><div class="photo-caption-overlay"><p>O carinho que nos une.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/26.webp" alt="Momento 26" loading="lazy"></div><div class="photo-caption-overlay"><p>O amor está nos pequenos gestos.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/27.webp" alt="Momento 27" loading="lazy"></div><div class="photo-caption-overlay"><p>Sempre juntos em boas conversas.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/28.webp" alt="Momento 28" loading="lazy"></div><div class="photo-caption-overlay"><p>Guardando o melhor de cada dia.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/29.webp" alt="Momento 29" loading="lazy"></div><div class="photo-caption-overlay"><p>Ainda temos tantos momentos para viver.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/30.webp" alt="Momento 30" loading="lazy"></div><div class="photo-caption-overlay"><p>🤍 Foi assim que chegamos até aqui.</p></div></div>
+            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/30.webp" alt="Momento 31" loading="lazy"></div><div class="photo-caption-overlay"><p>E agora, um novo capítulo começa.</p></div></div>
         </div>
-        
-        <div class="moments-container">
-            <div class="gallery-grid">
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/01.webp" alt="Momento 1"></div><p class="photo-caption">Celebrando o amor em boa companhia.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/02.webp" alt="Momento 2"></div><p class="photo-caption">Colecionando momentos juntos.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/03.webp" alt="Momento 3"></div><p class="photo-caption">Um beijo para lembrar o quanto amo você.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/04.webp" alt="Momento 4"></div><p class="photo-caption">Construindo memórias sob a bênção de Jeová.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/05.webp" alt="Momento 5"></div><p class="photo-caption">Nosso jeito de estar juntos.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/06.webp" alt="Momento 6"></div><p class="photo-caption">Sorrisos sinceros na sua melhor companhia.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/07.webp" alt="Momento 7"></div><p class="photo-caption">Nosso abraço, meu porto seguro.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/08.webp" alt="Momento 8"></div><p class="photo-caption">Onde quer que estejamos, juntos é o nosso lugar.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/09.webp" alt="Momento 9"></div><p class="photo-caption">A vida fica mais leve e alegre ao seu lado.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/10.webp" alt="Momento 10"></div><p class="photo-caption">Sempre prontos para viver novos momentos juntos.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/10c.webp" alt="Momento 10c"></div><p class="photo-caption">Parceiros de todos os momentos.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/10d.webp" alt="Momento 10d"></div><p class="photo-caption">Sorrisos que acalmam o coração.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/10e.webp" alt="Momento 10e"></div><p class="photo-caption">Cuidando um do outro com carinho.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/11.webp" alt="Momento 11"></div><p class="photo-caption">Mais uma aventura para a nossa história.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/12.webp" alt="Momento 12"></div><p class="photo-caption">Alguns lugares ficam ainda mais especiais com você.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/13.webp" alt="Momento 13"></div><p class="photo-caption">Admirando a vista e agradecendo por ter você.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/14.webp" alt="Momento 14"></div><p class="photo-caption">Vivendo momentos que queremos guardar para sempre.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/15.webp" alt="Momento 15"></div><p class="photo-caption">Colecionando destinos e sorrisos.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/16.webp" alt="Momento 16"></div><p class="photo-caption">Juntos nos momentos mais especiais da nossa vida.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/17.webp" alt="Momento 17"></div><p class="photo-caption">A felicidade de estar ao seu lado.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/18.webp" alt="Momento 18"></div><p class="photo-caption">Registros de uma caminhada especial.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/19.webp" alt="Momento 19"></div><p class="photo-caption">Meu lugar favorito é ao seu lado.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/20.webp" alt="Momento 20"></div><p class="photo-caption">Histórias que guardaremos com carinho.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/21.webp" alt="Momento 21"></div><p class="photo-caption">Caminhando juntos rumo ao futuro.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/22.webp" alt="Momento 22"></div><p class="photo-caption">Complicidade em cada detalhe.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/23.webp" alt="Momento 23"></div><p class="photo-caption">Mais um dia para guardar na memória.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/24.webp" alt="Momento 24"></div><p class="photo-caption">Celebrando cada vitória juntos.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/25.webp" alt="Momento 25"></div><p class="photo-caption">O carinho que nos une.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/26.webp" alt="Momento 26"></div><p class="photo-caption">O amor está nos pequenos gestos.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/27.webp" alt="Momento 27"></div><p class="photo-caption">Sempre juntos em boas conversas.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/28.webp" alt="Momento 28"></div><p class="photo-caption">Guardando o melhor de cada dia.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/29.webp" alt="Momento 29"></div><p class="photo-caption">Ainda temos tantos momentos para viver.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/30.webp" alt="Momento 30"></div><p class="photo-caption">🤍 Foi assim que chegamos até aqui.</p></div>
-            <div class="photo-card moment-item"><div class="gallery-img-wrapper"><img src="fotos/30.webp" alt="Momento 31"></div><p class="photo-caption">“E agora, um novo capítulo começa.”</p></div>
-        </div>
-        </div>
-    </section>
+    </div>
+</section>
+
+<!-- Lightbox Modal com Moldura Polaroid -->
+<div class="lightbox-modal" id="lightbox-modal">
+    <span class="lightbox-close" id="lightbox-close">&times;</span>
+    <span class="lightbox-nav lightbox-prev" id="lightbox-prev">&#10094;</span>
+    <span class="lightbox-nav lightbox-next" id="lightbox-next">&#10095;</span>
+    
+    <div class="polaroid-wrapper">
+        <img class="lightbox-content" id="lightbox-img" src="" alt="Foto expandida">
+        <div class="lightbox-caption" id="lightbox-caption"></div>
+    </div>
+</div>
 
     <section id="cerimonia" class="screen-section">
         <div class="details-card animate-element">
@@ -747,8 +892,11 @@
     <section id="recados" class="screen-section">
         <div class="section-title animate-element">
             <span class="cursive-text" style="font-size: 3rem;">Carinho & Mensagens</span>
-            <h2>Sua mensagem será uma lembrança muito especial para nós.</h2>
+            
             <div class="divider"></div>
+            <p style="max-width: 600px; margin: 0 auto; font-size: 1rem; color: var(--text-dark);">
+                Sua mensagem será uma lembrança muito especial para nós.
+            </p>
             <p style="max-width: 600px; margin: 0 auto; font-size: 1rem; color: var(--text-dark);">
                 Se desejar, deixe algumas palavras, um conselho ou uma mensagem de carinho. Será uma alegria ler cada recado. 💌
             </p>
@@ -799,307 +947,363 @@
     </footer>
 
     <!-- SDK do Firebase (Versão Modular v12) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
-            authDomain: "casamento-felipe-enayra.firebaseapp.com",
-            projectId: "casamento-felipe-enayra",
-            storageBucket: "casamento-felipe-enayra.firebasestorage.app",
-            messagingSenderId: "24443483842",
-            appId: "1:24443483842:web:bc875b5dd017792458ed5b"
+    const firebaseConfig = {
+        apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
+        authDomain: "casamento-felipe-enayra.firebaseapp.com",
+        projectId: "casamento-felipe-enayra",
+        storageBucket: "casamento-felipe-enayra.firebasestorage.app",
+        messagingSenderId: "24443483842",
+        appId: "1:24443483842:web:bc875b5dd017792458ed5b"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Menu Mobile
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navLinks = document.getElementById('nav-links');
+    const navItems = document.querySelectorAll('.nav-link');
+
+    mobileMenu.addEventListener('click', () => {
+        mobileMenu.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+            navLinks.classList.remove('active');
+        });
+    });
+
+    // Máscara de Telefone (Ex: (84)999504641)
+    const phoneInput = document.getElementById('rsvp-phone');
+
+    phoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+
+        if (value.length > 2) {
+            value = `(${value.slice(0, 2)})${value.slice(2)}`;
+        } else if (value.length > 0) {
+            value = `(${value}`;
+        }
+
+        e.target.value = value;
+    });
+
+    // RSVP com Verificação de Duplicidade no Firestore
+    const rsvpForm = document.getElementById('rsvp-form');
+    const openRsvpModalBtn = document.getElementById('open-rsvp-modal');
+    const rsvpModal = document.getElementById('rsvp-modal');
+    const rsvpModalClose = document.getElementById('rsvp-modal-close');
+    const cancelRsvpBtn = document.getElementById('cancel-rsvp');
+    const confirmRsvpFinalBtn = document.getElementById('confirm-rsvp-final');
+
+    let tempRsvpData = {};
+
+    // RSVP com Validação de Nome + Sobrenome e Telefone
+    openRsvpModalBtn.addEventListener('click', () => {
+        const nome = document.getElementById('rsvp-name').value.trim();
+        const telefone = document.getElementById('rsvp-phone').value.trim();
+        const cidade = document.getElementById('rsvp-city').value.trim();
+
+        const rawPhoneNumbers = telefone.replace(/\D/g, '');
+
+        if (!nome || !telefone || !cidade) {
+            alert('Por favor, preencha todos os campos antes de continuar.');
+            return;
+        }
+
+        // Validação de Nome + Sobrenome (mínimo de 2 palavras com pelo menos 2 caracteres cada)
+        const nameParts = nome.split(/\s+/).filter(part => part.length >= 2);
+        if (nameParts.length < 2) {
+            alert('Por favor, digite seu nome e sobrenome completos.');
+            document.getElementById('rsvp-name').focus();
+            return;
+        }
+
+        // Validação de Telefone (mínimo de 10 dígitos)
+        if (rawPhoneNumbers.length < 10) {
+            alert('Por favor, digite um número de telefone válido com o DDD. Exemplo: (84)999504641');
+            phoneInput.focus();
+            return;
+        }
+
+        tempRsvpData = {
+            nome: nome,
+            telefone: telefone,
+            cidade: cidade,
+            data: serverTimestamp()
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        document.getElementById('review-name').innerText = nome;
+        document.getElementById('review-phone').innerText = telefone;
+        document.getElementById('review-city').innerText = cidade;
+        
+        rsvpModal.style.display = 'flex';
+    });
 
-        // Menu Mobile
-        const mobileMenu = document.getElementById('mobile-menu');
-        const navLinks = document.getElementById('nav-links');
-        const navItems = document.querySelectorAll('.nav-link');
+    const closeModal = () => { rsvpModal.style.display = 'none'; };
+    rsvpModalClose.addEventListener('click', closeModal);
+    cancelRsvpBtn.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => { if (e.target === rsvpModal) closeModal(); });
 
-        mobileMenu.addEventListener('click', () => {
-            mobileMenu.classList.toggle('active');
-            navLinks.classList.toggle('active');
-        });
+    // Validação e Confirmação Final no Banco de Dados
+    confirmRsvpFinalBtn.addEventListener('click', async () => {
+        try {
+            confirmRsvpFinalBtn.innerText = "Verificando...";
+            confirmRsvpFinalBtn.disabled = true;
 
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                mobileMenu.classList.remove('active');
-                navLinks.classList.remove('active');
-            });
-        });
+            const rsvpRef = collection(db, "rsvp");
+            const q = query(rsvpRef, where("telefone", "==", tempRsvpData.telefone));
+            const querySnapshot = await getDocs(q);
 
-        // Máscara e Validação de Telefone (Ex: (84)999504641)
-        const phoneInput = document.getElementById('rsvp-phone');
-
-        phoneInput.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.slice(0, 11);
-
-            if (value.length > 2) {
-                value = `(${value.slice(0, 2)})${value.slice(2)}`;
-            } else if (value.length > 0) {
-                value = `(${value}`;
-            }
-
-            e.target.value = value;
-        });
-
-        // RSVP com Verificação de Duplicidade no Firestore
-        const rsvpForm = document.getElementById('rsvp-form');
-        const openRsvpModalBtn = document.getElementById('open-rsvp-modal');
-        const rsvpModal = document.getElementById('rsvp-modal');
-        const rsvpModalClose = document.getElementById('rsvp-modal-close');
-        const cancelRsvpBtn = document.getElementById('cancel-rsvp');
-        const confirmRsvpFinalBtn = document.getElementById('confirm-rsvp-final');
-
-        let tempRsvpData = {};
-
-        // RSVP com Validação de Nome + Sobrenome e Telefone
-        openRsvpModalBtn.addEventListener('click', () => {
-            const nome = document.getElementById('rsvp-name').value.trim();
-            const telefone = document.getElementById('rsvp-phone').value.trim();
-            const cidade = document.getElementById('rsvp-city').value.trim();
-
-            const rawPhoneNumbers = telefone.replace(/\D/g, '');
-
-            if (!nome || !telefone || !cidade) {
-                alert('Por favor, preencha todos os campos antes de continuar.');
-                return;
-            }
-
-            // Validação de Nome + Sobrenome (mínimo de 2 palavras com pelo menos 2 caracteres cada)
-            const nameParts = nome.split(/\s+/).filter(part => part.length >= 2);
-            if (nameParts.length < 2) {
-                alert('Por favor, digite seu nome e sobrenome completos.');
-                document.getElementById('rsvp-name').focus();
-                return;
-            }
-
-            // Validação de Telefone (mínimo de 10 dígitos)
-            if (rawPhoneNumbers.length < 10) {
-                alert('Por favor, digite um número de telefone válido com o DDD. Exemplo: (84)999504641');
-                phoneInput.focus();
-                return;
-            }
-
-            tempRsvpData = {
-                nome: nome,
-                telefone: telefone,
-                cidade: cidade,
-                data: serverTimestamp()
-            };
-
-            document.getElementById('review-name').innerText = nome;
-            document.getElementById('review-phone').innerText = telefone;
-            document.getElementById('review-city').innerText = cidade;
-            
-            rsvpModal.style.display = 'flex';
-        });
-
-        const closeModal = () => { rsvpModal.style.display = 'none'; };
-        rsvpModalClose.addEventListener('click', closeModal);
-        cancelRsvpBtn.addEventListener('click', closeModal);
-        window.addEventListener('click', (e) => { if (e.target === rsvpModal) closeModal(); });
-
-        // Validação e Confirmação Final no Banco de Dados
-        confirmRsvpFinalBtn.addEventListener('click', async () => {
-            try {
-                confirmRsvpFinalBtn.innerText = "Verificando...";
-                confirmRsvpFinalBtn.disabled = true;
-
-                // Consulta se o número de telefone já foi cadastrado previamente no banco
-                const rsvpRef = collection(db, "rsvp");
-                const q = query(rsvpRef, where("telefone", "==", tempRsvpData.telefone));
-                const querySnapshot = await getDocs(q);
-
-                if (!querySnapshot.empty) {
-                    alert(`Atenção: O telefone ${tempRsvpData.telefone} já possui uma presença confirmada!`);
-                    rsvpModal.style.display = 'none';
-                    return;
-                }
-
-                confirmRsvpFinalBtn.innerText = "Salvando...";
-                await addDoc(rsvpRef, tempRsvpData);
-
-                alert(`Presença confirmada com sucesso, ${tempRsvpData.nome}! Estamos ansiosos para celebrar com você. 🤍`);
+            if (!querySnapshot.empty) {
+                alert(`Atenção: O telefone ${tempRsvpData.telefone} já possui uma presença confirmada!`);
                 rsvpModal.style.display = 'none';
-                rsvpForm.reset();
-            } catch (error) {
-                console.error("Erro ao salvar RSVP:", error);
-                alert("Ocorreu um erro ao verificar/salvar a confirmação. Tente novamente.");
-            } finally {
-                confirmRsvpFinalBtn.innerText = "Sim, Confirmar!";
-                confirmRsvpFinalBtn.disabled = false;
-            }
-        });
-
-        // Submeter Recados
-        const recadosForm = document.getElementById('recados-form');
-        const recadoSubmitBtn = document.getElementById('recado-submit-btn');
-
-        recadosForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nome = document.getElementById('recado-nome').value.trim();
-            const mensagem = document.getElementById('recado-texto').value.trim();
-
-            if (!nome || !mensagem) {
-                alert('Por favor, preencha seu nome e a mensagem.');
                 return;
             }
 
-            try {
-                recadoSubmitBtn.innerText = "Enviando...";
-                recadoSubmitBtn.disabled = true;
+            confirmRsvpFinalBtn.innerText = "Salvando...";
+            await addDoc(rsvpRef, tempRsvpData);
 
-                await addDoc(collection(db, "recados"), {
+            alert(`Presença confirmada com sucesso, ${tempRsvpData.nome}! Estamos ansiosos para celebrar com você. 🤍`);
+            rsvpModal.style.display = 'none';
+            rsvpForm.reset();
+        } catch (error) {
+            console.error("Erro ao salvar RSVP:", error);
+            alert("Ocorreu um erro ao verificar/salvar a confirmação. Tente novamente.");
+        } finally {
+            confirmRsvpFinalBtn.innerText = "Sim, Confirmar!";
+            confirmRsvpFinalBtn.disabled = false;
+        }
+    });
+
+    // Submeter Recados
+    const recadosForm = document.getElementById('recados-form');
+    const recadoSubmitBtn = document.getElementById('recado-submit-btn');
+
+    recadosForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById('recado-nome').value.trim();
+        const mensagem = document.getElementById('recado-texto').value.trim();
+
+        if (!nome || !mensagem) {
+            alert('Por favor, preencha seu nome e a mensagem.');
+            return;
+        }
+
+        try {
+            recadoSubmitBtn.innerText = "Enviando...";
+            recadoSubmitBtn.disabled = true;
+
+            await addDoc(collection(db, "recados"), {
+                nome: nome,
+                mensagem: mensagem,
+                data: serverTimestamp()
+            });
+
+            fetch("https://formspree.io/f/xvgopkbl", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    _replyto: "cristianomiguelf@gmail.com",
+                    noivos_emails: "enayralimatj@gmail.com, cristianomiguelf@gmail.com",
+                    assunto: "Novo Recado do Site de Casamento!",
                     nome: nome,
-                    mensagem: mensagem,
-                    data: serverTimestamp()
-                });
+                    mensagem: mensagem
+                })
+            }).catch(err => console.error("Erro ao disparar e-mail:", err));
 
-                fetch("https://formspree.io/f/xvgopkbl", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        _replyto: "cristianomiguelf@gmail.com",
-                        noivos_emails: "enayralimatj@gmail.com, cristianomiguelf@gmail.com",
-                        assunto: "Novo Recado do Site de Casamento!",
-                        nome: nome,
-                        mensagem: mensagem
-                    })
-                }).catch(err => console.error("Erro ao disparar e-mail:", err));
+            alert(`Obrigado pelo carinho, ${nome}! Seu recado foi enviado com sucesso aos noivos.`);
+            recadosForm.reset();
+        } catch (error) {
+            console.error("Erro ao salvar recado:", error);
+            alert("Ocorreu um erro ao enviar seu recado. Tente novamente.");
+        } finally {
+            recadoSubmitBtn.innerText = "Enviar Recado 💌";
+            recadoSubmitBtn.disabled = false;
+        }
+    });
 
-                alert(`Obrigado pelo carinho, ${nome}! Seu recado foi enviado com sucesso aos noivos.`);
-                recadosForm.reset();
-            } catch (error) {
-                console.error("Erro ao salvar recado:", error);
-                alert("Ocorreu um erro ao enviar seu recado. Tente novamente.");
-            } finally {
-                recadoSubmitBtn.innerText = "Enviar Recado 💌";
-                recadoSubmitBtn.disabled = false;
-            }
-        });
+    // Lógica do Lightbox Modal da Galeria de Fotos
+    const lightboxModal = document.getElementById('lightbox-modal');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxClose = document.getElementById('lightbox-close');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
 
-        // Animações GSAP
-        gsap.registerPlugin(ScrollTrigger);
-        document.querySelectorAll('.animate-element').forEach((el) => {
-            gsap.fromTo(el, 
-                { opacity: 0, y: 40, autoAlpha: 0 },
-                { 
-                    opacity: 1, y: 0, autoAlpha: 1, duration: 1.5, ease: "power2.out",
-                    scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none none" }
-                }
-            );
-        });
+    const galleryCards = Array.from(document.querySelectorAll('#lightbox-gallery .photo-card'));
+    let currentImageIndex = 0;
 
-        gsap.fromTo(".moment-item", 
-            { opacity: 0, y: 60, scale: 0.9 },
+    function openLightbox(index) {
+        currentImageIndex = index;
+        const card = galleryCards[currentImageIndex];
+        const imgSrc = card.querySelector('img').src;
+        const captionText = card.querySelector('.photo-caption-overlay p').innerText;
+
+        lightboxImg.src = imgSrc;
+        lightboxCaption.innerText = captionText;
+        lightboxModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightboxModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    function showPrevImage() {
+        currentImageIndex = (currentImageIndex - 1 + galleryCards.length) % galleryCards.length;
+        openLightbox(currentImageIndex);
+    }
+
+    function showNextImage() {
+        currentImageIndex = (currentImageIndex + 1) % galleryCards.length;
+        openLightbox(currentImageIndex);
+    }
+
+    galleryCards.forEach((card, index) => {
+        card.addEventListener('click', () => openLightbox(index));
+    });
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', (e) => { e.stopPropagation(); showPrevImage(); });
+    lightboxNext.addEventListener('click', (e) => { e.stopPropagation(); showNextImage(); });
+
+    lightboxModal.addEventListener('click', (e) => {
+        if (e.target === lightboxModal || e.target === lightboxImg) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (!lightboxModal.classList.contains('active')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') showPrevImage();
+        if (e.key === 'ArrowRight') showNextImage();
+    });
+
+    // Animações GSAP
+    gsap.registerPlugin(ScrollTrigger);
+    document.querySelectorAll('.animate-element').forEach((el) => {
+        gsap.fromTo(el, 
+            { opacity: 0, y: 40, autoAlpha: 0 },
             { 
-                opacity: 1, 
-                y: 0, 
-                scale: 1,
-                duration: 0.8, 
-                stagger: 0.08, 
-                ease: "back.out(1.2)",
-                scrollTrigger: {
-                    trigger: ".moments-container",
-                    start: "top 80%",
-                    toggleActions: "play none none none"
-                }
+                opacity: 1, y: 0, autoAlpha: 1, duration: 1.5, ease: "power2.out",
+                scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none none" }
             }
         );
+    });
 
-        // Contagem Regressiva
-        const targetDate = new Date("Dec 20, 2026 15:00:00").getTime();
-        
-        const updateTimer = setInterval(() => {
-            const now = new Date().getTime();
-            const difference = targetDate - now;
-
-            if (difference < 0) {
-                clearInterval(updateTimer);
-                document.getElementById("main-countdown").innerHTML = "<h2 style='color: var(--white); font-family: Playfair Display, serif; font-size: 2.5rem; margin: 20px 0;'>É HOJE! 🤍</h2>";
-                return;
+    gsap.fromTo(".moment-item", 
+        { opacity: 0, y: 60, scale: 0.9 },
+        { 
+            opacity: 1, 
+            y: 0, 
+            scale: 1,
+            duration: 0.8, 
+            stagger: 0.08, 
+            ease: "back.out(1.2)",
+            scrollTrigger: {
+                trigger: ".moments-container",
+                start: "top 80%",
+                toggleActions: "play none none none"
             }
+        }
+    );
 
-            document.getElementById("timer-days").innerText = Math.floor(difference / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
-            document.getElementById("timer-hours").innerText = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-            document.getElementById("timer-minutes").innerText = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-            document.getElementById("timer-seconds").innerText = Math.floor((difference % (1000 * 60)) / 1000).toString().padStart(2, '0');
-        }, 1000);
+    // Contagem Regressiva Atualizada (20 de Dezembro de 2026 às 16:00hs)
+    const targetDate = new Date("Dec 20, 2026 15:00:00").getTime();
+    
+    const updateTimer = setInterval(() => {
+        const now = new Date().getTime();
+        const difference = targetDate - now;
 
-        // Player de Áudio Persistente
-        const playlist = [
-            'musicas/How Long Will I Love You.mp3',
-            'musicas/Let s Stay Together.mp3',
-            'musicas/Belong Together.mp3'
-        ];
+        if (difference < 0) {
+            clearInterval(updateTimer);
+            document.getElementById("main-countdown").innerHTML = "<h2 style='color: var(--white); font-family: Playfair Display, serif; font-size: 2.5rem; margin: 20px 0;'>É HOJE! 🤍</h2>";
+            return;
+        }
 
-        const audioElement = document.getElementById('background-audio');
-        const toggleAudioBtn = document.getElementById('audio-toggle');
+        document.getElementById("timer-days").innerText = Math.floor(difference / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+        document.getElementById("timer-hours").innerText = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+        document.getElementById("timer-minutes").innerText = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+        document.getElementById("timer-seconds").innerText = Math.floor((difference % (1000 * 60)) / 1000).toString().padStart(2, '0');
+    }, 1000);
 
-        let savedTrackIndex = localStorage.getItem('audio_track_index');
-        let currentTrackIndex = savedTrackIndex !== null ? parseInt(savedTrackIndex, 10) : Math.floor(Math.random() * playlist.length);
-        let savedTime = localStorage.getItem('audio_time');
-        let wasPlaying = localStorage.getItem('audio_is_playing') === 'true';
+    // Player de Áudio Persistente
+    const playlist = [
+        'musicas/How Long Will I Love You.mp3',
+        'musicas/Let s Stay Together.mp3',
+        'musicas/Belong Together.mp3'
+    ];
 
+    const audioElement = document.getElementById('background-audio');
+    const toggleAudioBtn = document.getElementById('audio-toggle');
+
+    let savedTrackIndex = localStorage.getItem('audio_track_index');
+    let currentTrackIndex = savedTrackIndex !== null ? parseInt(savedTrackIndex, 10) : Math.floor(Math.random() * playlist.length);
+    let savedTime = localStorage.getItem('audio_time');
+    let wasPlaying = localStorage.getItem('audio_is_playing') === 'true';
+
+    audioElement.src = playlist[currentTrackIndex];
+    audioElement.load();
+
+    if (savedTime && !isNaN(parseFloat(savedTime))) {
+        audioElement.currentTime = parseFloat(savedTime);
+    }
+
+    audioElement.addEventListener('timeupdate', () => {
+        localStorage.setItem('audio_time', audioElement.currentTime);
+        localStorage.setItem('audio_track_index', currentTrackIndex);
+    });
+
+    audioElement.addEventListener('ended', () => {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
         audioElement.src = playlist[currentTrackIndex];
+        localStorage.setItem('audio_track_index', currentTrackIndex);
+        localStorage.setItem('audio_time', 0);
         audioElement.load();
+        audioElement.play();
+    });
 
-        if (savedTime && !isNaN(parseFloat(savedTime))) {
-            audioElement.currentTime = parseFloat(savedTime);
-        }
-
-        audioElement.addEventListener('timeupdate', () => {
-            localStorage.setItem('audio_time', audioElement.currentTime);
-            localStorage.setItem('audio_track_index', currentTrackIndex);
-        });
-
-        audioElement.addEventListener('ended', () => {
-            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-            audioElement.src = playlist[currentTrackIndex];
-            localStorage.setItem('audio_track_index', currentTrackIndex);
-            localStorage.setItem('audio_time', 0);
-            audioElement.load();
-            audioElement.play();
-        });
-
-        const startAudio = () => {
-            const playPromise = audioElement.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    toggleAudioBtn.innerText = "⏸️";
-                    localStorage.setItem('audio_is_playing', 'true');
-                    ['click', 'touchstart', 'scroll'].forEach(evt => 
-                        document.removeEventListener(evt, startAudio)
-                    );
-                }).catch(() => {
-                    toggleAudioBtn.innerText = "🎵";
-                });
-            }
-        };
-
-        if (wasPlaying) {
-            window.addEventListener('load', startAudio);
-            document.addEventListener('click', startAudio);
-            document.addEventListener('touchstart', startAudio, { passive: true });
-            document.addEventListener('scroll', startAudio, { passive: true });
-        }
-
-        toggleAudioBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (!audioElement.paused) {
-                audioElement.pause();
+    const startAudio = () => {
+        const playPromise = audioElement.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                toggleAudioBtn.innerText = "⏸️";
+                localStorage.setItem('audio_is_playing', 'true');
+                ['click', 'touchstart', 'scroll'].forEach(evt => 
+                    document.removeEventListener(evt, startAudio)
+                );
+            }).catch(() => {
                 toggleAudioBtn.innerText = "🎵";
-                localStorage.setItem('audio_is_playing', 'false');
-            } else {
-                startAudio();
-            }
-        });
-    </script>
+            });
+        }
+    };
+
+    if (wasPlaying) {
+        window.addEventListener('load', startAudio);
+        document.addEventListener('click', startAudio);
+        document.addEventListener('touchstart', startAudio, { passive: true });
+        document.addEventListener('scroll', startAudio, { passive: true });
+    }
+
+    toggleAudioBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!audioElement.paused) {
+            audioElement.pause();
+            toggleAudioBtn.innerText = "🎵";
+            localStorage.setItem('audio_is_playing', 'false');
+        } else {
+            startAudio();
+        }
+    });
+</script>
 </body>
 </html>
