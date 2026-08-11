@@ -975,7 +975,7 @@
     <!-- SDK do Firebase (Versão Modular v12) -->
    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, increment, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, increment, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyC0CmS7VsWP9KEOJn6bLvZa6is8rUOX6DY",
@@ -1032,7 +1032,6 @@
 
     let tempRsvpData = {};
 
-    // RSVP com Validação de Nome + Sobrenome e Telefone
     openRsvpModalBtn.addEventListener('click', () => {
         const nome = document.getElementById('rsvp-name').value.trim();
         const telefone = document.getElementById('rsvp-phone').value.trim();
@@ -1045,7 +1044,6 @@
             return;
         }
 
-        // Validação de Nome + Sobrenome (mínimo de 2 palavras com pelo menos 2 caracteres cada)
         const nameParts = nome.split(/\s+/).filter(part => part.length >= 2);
         if (nameParts.length < 2) {
             alert('Por favor, digite seu nome e sobrenome completos.');
@@ -1053,7 +1051,6 @@
             return;
         }
 
-        // Validação de Telefone (mínimo de 10 dígitos)
         if (rawPhoneNumbers.length < 10) {
             alert('Por favor, digite um número de telefone válido com o DDD. Exemplo: (84)999504641');
             phoneInput.focus();
@@ -1079,7 +1076,6 @@
     cancelRsvpBtn.addEventListener('click', closeModal);
     window.addEventListener('click', (e) => { if (e.target === rsvpModal) closeModal(); });
 
-    // Validação e Confirmação Final no Banco de Dados
     confirmRsvpFinalBtn.addEventListener('click', async () => {
         try {
             confirmRsvpFinalBtn.innerText = "Verificando...";
@@ -1243,7 +1239,7 @@
         }
     );
 
-    // Contagem Regressiva Atualizada (20 de Dezembro de 2026 às 16:00hs)
+    // Contagem Regressiva
     const targetDate = new Date("Dec 20, 2026 15:00:00").getTime();
     
     const updateTimer = setInterval(() => {
@@ -1258,7 +1254,7 @@
 
         document.getElementById("timer-days").innerText = Math.floor(difference / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
         document.getElementById("timer-hours").innerText = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
-        document.getElementById("timer-minutes").innerText = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+        document.getElementById("timer-minutes").innerText = Math.floor((difference % (1000 * 60 * 60)).toString().padStart(2, '0'));
         document.getElementById("timer-seconds").innerText = Math.floor((difference % (1000 * 60)) / 1000).toString().padStart(2, '0');
     }, 1000);
 
@@ -1331,35 +1327,38 @@
         }
     });
 
-    // Lógica do Contador de Visitantes (Firebase Firestore)
-const visitorCountEl = document.getElementById('visitor-count');
-const counterDocRef = doc(db, "estatisticas", "visitas");
+    // --- LÓGICA DO CONTADOR DE VISITANTES (CORRIGIDA) ---
+    const visitorCountEl = document.getElementById('visitor-count');
+    const counterDocRef = doc(db, "estatisticas", "visitas");
 
-async function registerVisit() {
-    // Registra o incremento apenas 1 vez por sessão de navegação
-    if (!sessionStorage.getItem('has_visited')) {
-        try {
-            await setDoc(counterDocRef, { total: increment(1) }, { merge: true });
-            sessionStorage.setItem('has_visited', 'true');
-        } catch (error) {
-            console.error("Erro ao contabilizar visita:", error);
+    async function registerVisit() {
+        if (!sessionStorage.getItem('has_visited')) {
+            try {
+                const docSnap = await getDoc(counterDocRef);
+                if (docSnap.exists()) {
+                    await updateDoc(counterDocRef, { total: increment(1) });
+                } else {
+                    await setDoc(counterDocRef, { total: 1 });
+                }
+                sessionStorage.setItem('has_visited', 'true');
+            } catch (error) {
+                console.error("Erro ao registrar visita no Firestore:", error);
+            }
         }
     }
-}
 
-// Escuta a contagem total em tempo real
-onSnapshot(counterDocRef, (docSnapshot) => {
-    if (docSnapshot.exists()) {
-        const totalVisitas = docSnapshot.data().total || 0;
-        if (visitorCountEl) {
-            visitorCountEl.innerText = totalVisitas.toLocaleString('pt-BR');
+    onSnapshot(counterDocRef, (docSnapshot) => {
+        if (docSnapshot.exists()) {
+            const totalVisitas = docSnapshot.data().total || 0;
+            if (visitorCountEl) {
+                visitorCountEl.innerText = totalVisitas.toLocaleString('pt-BR');
+            }
+        } else {
+            if (visitorCountEl) visitorCountEl.innerText = '0';
         }
-    } else {
-        if (visitorCountEl) visitorCountEl.innerText = '1';
-    }
-});
+    });
 
-registerVisit();
+    registerVisit();
 </script>
 </body>
 </html>
