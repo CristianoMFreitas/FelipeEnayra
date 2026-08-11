@@ -458,7 +458,7 @@
                 if (isAvailable) {
                     buttonHTML = `<button class="btn-choose" onclick="openGiftModal('${id}', '${gift.title.replace(/'/g, "\\'")}')">Escolher Presente</button>`;
                 } else {
-                    buttonHTML = `<button class="btn-choose" disabled>Reservado por ${gift.chosenBy || 'outro convidado'}</button>`;
+                    buttonHTML = `<button class="btn-choose" disabled>Reservado </button>`;
                 }
 
                 card.innerHTML = `
