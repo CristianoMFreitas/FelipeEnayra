@@ -117,7 +117,7 @@
 
         .header-section {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
         }
 
         .header-section h1 {
@@ -141,8 +141,54 @@
             line-height: 1.6;
             color: #555;
         }
+        
+        /* Search Bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 3rem auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 45px;
+            border-radius: 30px;
+            border: 1px solid rgba(109, 76, 65, 0.3);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            color: var(--text-dark);
+            background: var(--white);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--light-brown);
+        }
 
         /* Grid de Presentes */
+        .gifts-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--brown);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
         .gifts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -200,16 +246,6 @@
             color: var(--text-dark);
         }
 
-        .gift-card.unavailable {
-            opacity: 0.65;
-            border-top-color: #ccc;
-        }
-
-        .gift-card.unavailable .btn-choose {
-            background: #999;
-            cursor: not-allowed;
-        }
-
         .store-link {
             display: inline-block;
             margin-bottom: 15px;
@@ -221,6 +257,38 @@
 
         .store-link:hover {
             text-decoration: underline;
+        }
+
+        /* Reserved Gifts Styles */
+        .reserved-card {
+            border-top-color: #ccc;
+            opacity: 0.8;
+            background: #faf8f3;
+        }
+        
+        .reserved-card:hover {
+            transform: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .reserved-badge {
+            background: #999;
+            color: var(--white);
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            display: inline-block;
+        }
+
+        .giver-name {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
         }
 
         /* Modal de Escolha do Presente */
@@ -363,9 +431,26 @@
             </p>
         </div>
 
-        <div id="gifts-container" class="gifts-grid">
-            <p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 40px;">Carregando lista de presentes...</p>
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-gift" class="search-input" placeholder="Pesquisar presente...">
         </div>
+
+        <div class="gifts-section">
+            <div id="available-gifts-container" class="gifts-grid">
+                <p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 40px;">Carregando lista de presentes...</p>
+            </div>
+            <p id="no-results-msg" style="display: none; text-align: center; color: #888; margin-top: 20px;">Nenhum presente encontrado.</p>
+        </div>
+
+        <div class="gifts-section" id="reserved-section" style="display: none;">
+            <h2 class="section-title">Presentes Reservados</h2>
+            <div class="divider"></div>
+            <div id="reserved-gifts-container" class="gifts-grid" style="margin-top: 2rem;">
+                <!-- Reserved gifts will be appended here -->
+            </div>
+        </div>
+
     </div>
 
     <!-- Modal de Escolha do Presente -->
@@ -418,9 +503,15 @@
         const modalGiftTitle = document.getElementById('modal-gift-title');
         const chooseGiftForm = document.getElementById('choose-gift-form');
         const confirmGiftBtn = document.getElementById('confirm-gift-btn');
-        const giftsContainer = document.getElementById('gifts-container');
+        
+        const availableGiftsContainer = document.getElementById('available-gifts-container');
+        const reservedGiftsContainer = document.getElementById('reserved-gifts-container');
+        const reservedSection = document.getElementById('reserved-section');
+        const searchInput = document.getElementById('search-gift');
+        const noResultsMsg = document.getElementById('no-results-msg');
 
         let selectedGiftId = null;
+        let allGifts = [];
 
         const closeModal = () => { giftModal.style.display = 'none'; };
         modalClose.addEventListener('click', closeModal);
@@ -432,46 +523,95 @@
             giftModal.style.display = 'flex';
         };
 
-        // Carregar Lista de Presentes do Firebase em Tempo Real
-        onSnapshot(collection(db, "presentes"), (snapshot) => {
-            giftsContainer.innerHTML = '';
+        function renderGifts(giftsToRender) {
+            availableGiftsContainer.innerHTML = '';
+            reservedGiftsContainer.innerHTML = '';
             
-            if (snapshot.empty) {
-                giftsContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 40px;">Em breve a lista de presentes estará disponível!</p>';
-                return;
+            let availableCount = 0;
+            let reservedCount = 0;
+
+            if (giftsToRender.length === 0 && searchInput.value === '') {
+                 availableGiftsContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: #888; padding: 40px;">Em breve a lista de presentes estará disponível!</p>';
+                 reservedSection.style.display = 'none';
+                 noResultsMsg.style.display = 'none';
+                 return;
             }
 
-            snapshot.forEach((docSnapshot) => {
-                const gift = docSnapshot.data();
-                const id = docSnapshot.id;
+            giftsToRender.forEach((item) => {
+                const gift = item.data;
+                const id = item.id;
                 
                 const isAvailable = gift.disponivel !== false && !gift.chosenBy;
 
                 const card = document.createElement('div');
-                card.className = `gift-card ${isAvailable ? '' : 'unavailable'}`;
-
+                
                 const iconHTML = `<div class="gift-icon">${gift.icon || '🎁'}</div>`;
                 const titleHTML = `<h3 class="gift-title">${gift.title}</h3>`;
                 const linkHTML = gift.link ? `<a href="${gift.link}" target="_blank" class="store-link">🔗 Ver na Loja Exemplo</a>` : '';
 
-                let buttonHTML = '';
                 if (isAvailable) {
-                    buttonHTML = `<button class="btn-choose" onclick="openGiftModal('${id}', '${gift.title.replace(/'/g, "\\'")}')">Escolher Presente</button>`;
+                    card.className = 'gift-card';
+                    const buttonHTML = `<button class="btn-choose" onclick="openGiftModal('${id}', '${gift.title.replace(/'/g, "\\'")}')">Escolher Presente</button>`;
+                    card.innerHTML = `
+                        <div>
+                            ${iconHTML}
+                            ${titleHTML}
+                            ${linkHTML}
+                        </div>
+                        ${buttonHTML}
+                    `;
+                    availableGiftsContainer.appendChild(card);
+                    availableCount++;
                 } else {
-                    buttonHTML = `<button class="btn-choose" disabled>Reservado </button>`;
+                    card.className = 'gift-card reserved-card';
+                    let giverHTML = '';
+                    if(gift.chosenBy && gift.chosenBy !== "Reservado pelo Admin") {
+                         giverHTML = ``;
+                    }
+                    const badgeHTML = `<span class="reserved-badge">Reservado</span>`;
+                    
+                    card.innerHTML = `
+                        <div>
+                            ${iconHTML}
+                            ${titleHTML}
+                            ${giverHTML}
+                        </div>
+                        ${badgeHTML}
+                    `;
+                    reservedGiftsContainer.appendChild(card);
+                    reservedCount++;
                 }
-
-                card.innerHTML = `
-                    <div>
-                        ${iconHTML}
-                        ${titleHTML}
-                        ${linkHTML}
-                    </div>
-                    ${buttonHTML}
-                `;
-
-                giftsContainer.appendChild(card);
             });
+
+            reservedSection.style.display = reservedCount > 0 ? 'block' : 'none';
+            
+            if (availableCount === 0 && reservedCount === 0 && searchInput.value !== '') {
+                noResultsMsg.style.display = 'block';
+            } else {
+                noResultsMsg.style.display = 'none';
+            }
+        }
+
+        function filterGifts() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const filteredGifts = allGifts.filter(item => 
+                item.data.title.toLowerCase().includes(searchTerm)
+            );
+            renderGifts(filteredGifts);
+        }
+
+        searchInput.addEventListener('input', filterGifts);
+
+        // Carregar Lista de Presentes do Firebase em Tempo Real
+        onSnapshot(collection(db, "presentes"), (snapshot) => {
+            allGifts = [];
+            snapshot.forEach((docSnapshot) => {
+                allGifts.push({
+                    id: docSnapshot.id,
+                    data: docSnapshot.data()
+                });
+            });
+            filterGifts(); // Applies current search or renders all
         });
 
         // Confirmar Escolha do Presente
